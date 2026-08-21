@@ -1,0 +1,570 @@
+{% extends "base.html" %}
+
+{% block title %}
+Smart Power Cut Prediction System | Home
+{% endblock %}
+
+{% block content %}
+
+<section class="hero-section">
+
+    <div class="hero-content">
+
+        <div class="hero-badge">
+            ⚡ Electricity Complaint Management
+        </div>
+
+        <h1>
+            Smart Power Cut
+            <span>Prediction System</span>
+        </h1>
+
+        <p class="hero-description">
+            A web-based platform for reporting electricity-related
+            issues, tracking complaint resolution, and viewing
+            power cut predictions for selected areas.
+        </p>
+
+        <div class="hero-actions">
+
+            {% if current_user.is_authenticated %}
+
+                {% if current_user.role == 'resident' %}
+
+                    <a
+                        href="{{ url_for('resident.dashboard') }}"
+                        class="btn btn-primary"
+                    >
+                        Go to Dashboard
+                    </a>
+
+                    <a
+                        href="{{ url_for('resident.complaint_form') }}"
+                        class="btn btn-secondary"
+                    >
+                        Submit a Complaint
+                    </a>
+
+                {% elif current_user.role == 'staff' %}
+
+                    <a
+                        href="{{ url_for('staff.dashboard') }}"
+                        class="btn btn-primary"
+                    >
+                        Staff Dashboard
+                    </a>
+
+                {% elif current_user.role == 'officer' %}
+
+                    <a
+                        href="{{ url_for('officer.dashboard') }}"
+                        class="btn btn-primary"
+                    >
+                        Officer Dashboard
+                    </a>
+
+                {% elif current_user.role == 'admin' %}
+
+                    <a
+                        href="{{ url_for('admin.dashboard') }}"
+                        class="btn btn-primary"
+                    >
+                        Administrator Dashboard
+                    </a>
+
+                {% endif %}
+
+            {% else %}
+
+                <a
+                    href="{{ url_for('auth.register') }}"
+                    class="btn btn-primary"
+                >
+                    Create Resident Account
+                </a>
+
+                <a
+                    href="{{ url_for('auth.login') }}"
+                    class="btn btn-secondary"
+                >
+                    Sign In
+                </a>
+
+            {% endif %}
+
+        </div>
+
+    </div>
+
+
+    <div class="hero-panel">
+
+        <div class="hero-panel-icon">
+            ⚡
+        </div>
+
+        <h2>
+            Electricity Services
+        </h2>
+
+        <p>
+            Report an issue and keep track of its progress
+            from submission through resolution.
+        </p>
+
+        <div class="hero-panel-items">
+
+            <div class="hero-panel-item">
+                <span>✓</span>
+                <span>Complaint Registration</span>
+            </div>
+
+            <div class="hero-panel-item">
+                <span>✓</span>
+                <span>Complaint Status Tracking</span>
+            </div>
+
+            <div class="hero-panel-item">
+                <span>✓</span>
+                <span>Resolution Notifications</span>
+            </div>
+
+            <div class="hero-panel-item">
+                <span>✓</span>
+                <span>Power Cut Predictions</span>
+            </div>
+
+        </div>
+
+    </div>
+
+</section>
+
+
+<section class="section-block">
+
+    <div class="section-heading">
+
+        <span class="section-label">
+            Platform Features
+        </span>
+
+        <h2>
+            Manage Electricity Issues Efficiently
+        </h2>
+
+        <p>
+            The system provides dedicated functions for residents,
+            Electricity Department Staff, Senior Electricity Officers,
+            and administrators.
+        </p>
+
+    </div>
+
+
+    <div class="feature-grid">
+
+        <article class="feature-card">
+
+            <div class="feature-icon">
+                ⚡
+            </div>
+
+            <h3>
+                Report Electricity Issues
+            </h3>
+
+            <p>
+                Residents can submit power cut, streetlight,
+                electric pole damage, and voltage issue complaints.
+            </p>
+
+        </article>
+
+
+        <article class="feature-card">
+
+            <div class="feature-icon">
+                📍
+            </div>
+
+            <h3>
+                Provide Complaint Details
+            </h3>
+
+            <p>
+                Include the complaint location, date, time,
+                supporting image, and preferred 24 or 48-hour
+                resolution period.
+            </p>
+
+        </article>
+
+
+        <article class="feature-card">
+
+            <div class="feature-icon">
+                ✓
+            </div>
+
+            <h3>
+                Track Resolution
+            </h3>
+
+            <p>
+                Residents can view complaint status, previous
+                complaint history, notifications, and resolution
+                information.
+            </p>
+
+        </article>
+
+
+        <article class="feature-card">
+
+            <div class="feature-icon">
+                📊
+            </div>
+
+            <h3>
+                Power Cut Predictions
+            </h3>
+
+            <p>
+                View predicted power cut information for a
+                selected area based on available complaint patterns.
+            </p>
+
+        </article>
+
+
+        <article class="feature-card">
+
+            <div class="feature-icon">
+                🛠
+            </div>
+
+            <h3>
+                Department Processing
+            </h3>
+
+            <p>
+                Assigned Electricity Department Staff can accept
+                complaints, update status, add repair notes,
+                and mark completed work as resolved.
+            </p>
+
+        </article>
+
+
+        <article class="feature-card">
+
+            <div class="feature-icon">
+                🔔
+            </div>
+
+            <h3>
+                Automated Escalation
+            </h3>
+
+            <p>
+                Unresolved complaints are automatically escalated
+                when the selected 24 or 48-hour resolution period
+                expires.
+            </p>
+
+        </article>
+
+    </div>
+
+</section>
+
+
+<section class="process-section">
+
+    <div class="section-heading">
+
+        <span class="section-label">
+            Complaint Process
+        </span>
+
+        <h2>
+            From Complaint to Resolution
+        </h2>
+
+        <p>
+            Follow the complaint through the department's
+            processing workflow.
+        </p>
+
+    </div>
+
+
+    <div class="process-grid">
+
+        <div class="process-step">
+
+            <div class="process-number">
+                01
+            </div>
+
+            <h3>
+                Submit
+            </h3>
+
+            <p>
+                Resident submits an electricity complaint with
+                the required details.
+            </p>
+
+        </div>
+
+
+        <div class="process-step">
+
+            <div class="process-number">
+                02
+            </div>
+
+            <h3>
+                Assign
+            </h3>
+
+            <p>
+                The complaint is assigned to an appropriate
+                Electricity Department Staff member.
+            </p>
+
+        </div>
+
+
+        <div class="process-step">
+
+            <div class="process-number">
+                03
+            </div>
+
+            <h3>
+                Process
+            </h3>
+
+            <p>
+                Staff accepts the complaint, performs the work,
+                and records repair information.
+            </p>
+
+        </div>
+
+
+        <div class="process-step">
+
+            <div class="process-number">
+                04
+            </div>
+
+            <h3>
+                Resolve
+            </h3>
+
+            <p>
+                The complaint is marked as resolved after the
+                required work is completed.
+            </p>
+
+        </div>
+
+
+        <div class="process-step">
+
+            <div class="process-number">
+                05
+            </div>
+
+            <h3>
+                Escalate
+            </h3>
+
+            <p>
+                If the selected resolution period expires,
+                the complaint is escalated to a Senior
+                Electricity Officer.
+            </p>
+
+        </div>
+
+    </div>
+
+</section>
+
+
+<section class="roles-section">
+
+    <div class="section-heading">
+
+        <span class="section-label">
+            System Access
+        </span>
+
+        <h2>
+            Designed for Each System Role
+        </h2>
+
+        <p>
+            Each user type receives access to the functions
+            appropriate to their responsibilities.
+        </p>
+
+    </div>
+
+
+    <div class="role-grid">
+
+        <article class="role-card">
+
+            <div class="role-icon">
+                👤
+            </div>
+
+            <h3>
+                Resident
+            </h3>
+
+            <p>
+                Create an account, submit complaints, track
+                progress, view predictions, and receive notifications.
+            </p>
+
+        </article>
+
+
+        <article class="role-card">
+
+            <div class="role-icon">
+                🛠
+            </div>
+
+            <h3>
+                Electricity Department Staff
+            </h3>
+
+            <p>
+                Process assigned complaints, update status,
+                record repair notes, and resolve complaints.
+            </p>
+
+        </article>
+
+
+        <article class="role-card">
+
+            <div class="role-icon">
+                ⚠
+            </div>
+
+            <h3>
+                Senior Electricity Officer
+            </h3>
+
+            <p>
+                Review escalated complaints, assign appropriate
+                staff, and record final actions.
+            </p>
+
+        </article>
+
+
+        <article class="role-card">
+
+            <div class="role-icon">
+                ⚙
+            </div>
+
+            <h3>
+                Administrator
+            </h3>
+
+            <p>
+                Manage accounts, staff access, reports,
+                complaint datasets, and system operations.
+            </p>
+
+        </article>
+
+    </div>
+
+</section>
+
+
+<section class="access-section">
+
+    <div class="access-content">
+
+        <span class="section-label">
+            Get Started
+        </span>
+
+        <h2>
+            Need to Report an Electricity Issue?
+        </h2>
+
+        <p>
+            Create a resident account to submit and track
+            electricity-related complaints.
+        </p>
+
+        <div class="access-actions">
+
+            {% if current_user.is_authenticated %}
+
+                {% if current_user.role == 'resident' %}
+
+                    <a
+                        href="{{ url_for('resident.complaint_form') }}"
+                        class="btn btn-primary"
+                    >
+                        Submit a Complaint
+                    </a>
+
+                    <a
+                        href="{{ url_for('resident.complaints') }}"
+                        class="btn btn-secondary"
+                    >
+                        View My Complaints
+                    </a>
+
+                {% else %}
+
+                    <a
+                        href="{{ url_for('auth.logout') }}"
+                        class="btn btn-secondary"
+                    >
+                        Sign Out
+                    </a>
+
+                {% endif %}
+
+            {% else %}
+
+                <a
+                    href="{{ url_for('auth.register') }}"
+                    class="btn btn-primary"
+                >
+                    Create Resident Account
+                </a>
+
+                <a
+                    href="{{ url_for('auth.login') }}"
+                    class="btn btn-secondary"
+                >
+                    Sign In
+                </a>
+
+            {% endif %}
+
+        </div>
+
+    </div>
+
+</section>
+
+{% endblock %}
