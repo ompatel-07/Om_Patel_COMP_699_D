@@ -1,0 +1,792 @@
+{% extends "base.html" %}
+
+{% block title %}
+Upload Complaint Dataset | Smart Power Cut Prediction System
+{% endblock %}
+
+{% block content %}
+
+<section class="dashboard-page">
+
+    <!-- PAGE HEADER -->
+
+    <div class="dashboard-header">
+
+        <div>
+
+            <span class="section-label">
+                System Administration
+            </span>
+
+            <h1>
+                Upload Complaint Dataset
+            </h1>
+
+            <p>
+                Upload sample complaint records for system testing and
+                Random Forest model training.
+            </p>
+
+        </div>
+
+        <div class="dashboard-header-actions">
+
+            <a
+                href="{{ url_for('admin.dashboard') }}"
+                class="btn btn-secondary"
+            >
+                ← Dashboard
+            </a>
+
+            <a
+                href="{{ url_for('admin.reports') }}"
+                class="btn btn-secondary"
+            >
+                View Reports
+            </a>
+
+        </div>
+
+    </div>
+
+
+    <!-- UPLOAD SECTION -->
+
+    <section class="dashboard-grid">
+
+        <div class="dashboard-main">
+
+            <section class="dashboard-card">
+
+                <div class="card-header">
+
+                    <div>
+
+                        <span class="section-label">
+                            Dataset Management
+                        </span>
+
+                        <h2>
+                            Upload Sample Complaint Records
+                        </h2>
+
+                    </div>
+
+                </div>
+
+
+                <p>
+                    Select a CSV file containing sample complaint records.
+                    Uploaded records can be incorporated into the system
+                    complaint dataset for testing and prediction model
+                    training.
+                </p>
+
+
+                <form
+                    method="POST"
+                    action="{{ url_for('admin.upload_dataset') }}"
+                    enctype="multipart/form-data"
+                    class="auth-form"
+                >
+
+                    {% if csrf_token is defined %}
+
+                        <input
+                            type="hidden"
+                            name="csrf_token"
+                            value="{{ csrf_token() }}"
+                        >
+
+                    {% endif %}
+
+
+                    <div class="form-group">
+
+                        <label for="dataset_file">
+                            Complaint Dataset
+                        </label>
+
+                        <input
+                            type="file"
+                            id="dataset_file"
+                            name="dataset"
+                            accept=".csv,text/csv"
+                            required
+                        >
+
+                        <small class="form-help">
+                            Only CSV files should be uploaded.
+                        </small>
+
+                    </div>
+
+
+                    <div class="information-note">
+
+                        <span>
+                            i
+                        </span>
+
+                        <p>
+                            The uploaded file is intended for sample
+                            complaint records. Ensure that the records
+                            contain the fields required by the application's
+                            dataset and prediction workflow.
+                        </p>
+
+                    </div>
+
+
+                    <div class="form-actions">
+
+                        <button
+                            type="submit"
+                            class="btn btn-primary"
+                        >
+                            Upload Dataset
+                        </button>
+
+                        <a
+                            href="{{ url_for('admin.dashboard') }}"
+                            class="btn btn-secondary"
+                        >
+                            Cancel
+                        </a>
+
+                    </div>
+
+                </form>
+
+            </section>
+
+
+            <!-- DATASET WORKFLOW -->
+
+            <section class="dashboard-card">
+
+                <div class="card-header">
+
+                    <div>
+
+                        <span class="section-label">
+                            Prediction Workflow
+                        </span>
+
+                        <h2>
+                            How Uploaded Data Is Used
+                        </h2>
+
+                    </div>
+
+                </div>
+
+
+                <div class="information-grid">
+
+                    <div class="information-card">
+
+                        <div class="information-card-icon">
+                            1
+                        </div>
+
+                        <h3>
+                            Upload
+                        </h3>
+
+                        <p>
+                            The Administrator uploads sample complaint
+                            records through this page.
+                        </p>
+
+                    </div>
+
+
+                    <div class="information-card">
+
+                        <div class="information-card-icon">
+                            2
+                        </div>
+
+                        <h3>
+                            Store
+                        </h3>
+
+                        <p>
+                            Valid complaint records are made available
+                            to the system dataset.
+                        </p>
+
+                    </div>
+
+
+                    <div class="information-card">
+
+                        <div class="information-card-icon">
+                            3
+                        </div>
+
+                        <h3>
+                            Combine
+                        </h3>
+
+                        <p>
+                            Sample records can be combined with complaint
+                            records submitted by residents.
+                        </p>
+
+                    </div>
+
+
+                    <div class="information-card">
+
+                        <div class="information-card-icon">
+                            4
+                        </div>
+
+                        <h3>
+                            Split
+                        </h3>
+
+                        <p>
+                            The complaint dataset is divided into training
+                            and testing data before model building.
+                        </p>
+
+                    </div>
+
+
+                    <div class="information-card">
+
+                        <div class="information-card-icon">
+                            5
+                        </div>
+
+                        <h3>
+                            Train
+                        </h3>
+
+                        <p>
+                            The Random Forest model is trained using the
+                            available training records.
+                        </p>
+
+                    </div>
+
+
+                    <div class="information-card">
+
+                        <div class="information-card-icon">
+                            6
+                        </div>
+
+                        <h3>
+                            Evaluate
+                        </h3>
+
+                        <p>
+                            The model is evaluated using the testing
+                            records before prediction results are stored.
+                        </p>
+
+                    </div>
+
+                </div>
+
+            </section>
+
+
+            <!-- DATASET REQUIREMENTS -->
+
+            <section class="dashboard-card">
+
+                <div class="card-header">
+
+                    <div>
+
+                        <span class="section-label">
+                            Upload Guidelines
+                        </span>
+
+                        <h2>
+                            Dataset Requirements
+                        </h2>
+
+                    </div>
+
+                </div>
+
+
+                <div class="details-grid">
+
+                    <div class="detail-item">
+
+                        <span class="detail-label">
+                            File Format
+                        </span>
+
+                        <strong>
+                            CSV
+                        </strong>
+
+                    </div>
+
+
+                    <div class="detail-item">
+
+                        <span class="detail-label">
+                            Dataset Purpose
+                        </span>
+
+                        <strong>
+                            Testing / Training
+                        </strong>
+
+                    </div>
+
+
+                    <div class="detail-item">
+
+                        <span class="detail-label">
+                            Prediction Model
+                        </span>
+
+                        <strong>
+                            Random Forest
+                        </strong>
+
+                    </div>
+
+
+                    <div class="detail-item">
+
+                        <span class="detail-label">
+                            Dataset Source
+                        </span>
+
+                        <strong>
+                            Sample + Resident Records
+                        </strong>
+
+                    </div>
+
+                </div>
+
+
+                <div class="information-note">
+
+                    <span>
+                        !
+                    </span>
+
+                    <p>
+                        Upload records that follow the same complaint
+                        structure expected by the application's prediction
+                        workflow. Invalid or incomplete records should not
+                        be used for model training.
+                    </p>
+
+                </div>
+
+            </section>
+
+
+            <!-- CURRENT DATASET STATUS -->
+
+            <section class="dashboard-card">
+
+                <div class="card-header">
+
+                    <div>
+
+                        <span class="section-label">
+                            Current Dataset
+                        </span>
+
+                        <h2>
+                            Dataset Status
+                        </h2>
+
+                    </div>
+
+                    <a
+                        href="{{ url_for('admin.reports') }}"
+                        class="btn btn-secondary"
+                    >
+                        View Reports
+                    </a>
+
+                </div>
+
+
+                <div class="details-grid">
+
+                    <div class="detail-item">
+
+                        <span class="detail-label">
+                            Total Dataset Records
+                        </span>
+
+                        <strong>
+                            {{ dataset_records|default(0) }}
+                        </strong>
+
+                    </div>
+
+
+                    <div class="detail-item">
+
+                        <span class="detail-label">
+                            Sample Records
+                        </span>
+
+                        <strong>
+                            {{ sample_dataset_records|default(0) }}
+                        </strong>
+
+                    </div>
+
+
+                    <div class="detail-item">
+
+                        <span class="detail-label">
+                            Resident Complaint Records
+                        </span>
+
+                        <strong>
+                            {{ resident_dataset_records|default(0) }}
+                        </strong>
+
+                    </div>
+
+
+                    <div class="detail-item">
+
+                        <span class="detail-label">
+                            Model Status
+                        </span>
+
+                        <strong>
+                            {{ model_status|default('Not Available') }}
+                        </strong>
+
+                    </div>
+
+                </div>
+
+            </section>
+
+        </div>
+
+
+        <!-- SIDEBAR -->
+
+        <aside class="dashboard-sidebar">
+
+
+            <!-- ADMIN NAVIGATION -->
+
+            <section class="dashboard-card">
+
+                <div class="card-header">
+
+                    <div>
+
+                        <span class="section-label">
+                            Administration
+                        </span>
+
+                        <h2>
+                            Quick Navigation
+                        </h2>
+
+                    </div>
+
+                </div>
+
+
+                <div class="account-actions">
+
+                    <a
+                        href="{{ url_for('admin.dashboard') }}"
+                        class="secondary-action"
+                    >
+
+                        <span>
+                            🏠
+                        </span>
+
+                        <span>
+                            Dashboard
+                        </span>
+
+                        <span>
+                            →
+                        </span>
+
+                    </a>
+
+
+                    <a
+                        href="{{ url_for('admin.users') }}"
+                        class="secondary-action"
+                    >
+
+                        <span>
+                            👥
+                        </span>
+
+                        <span>
+                            Users
+                        </span>
+
+                        <span>
+                            →
+                        </span>
+
+                    </a>
+
+
+                    <a
+                        href="{{ url_for('admin.staff_accounts') }}"
+                        class="secondary-action"
+                    >
+
+                        <span>
+                            🧑‍💼
+                        </span>
+
+                        <span>
+                            Staff Accounts
+                        </span>
+
+                        <span>
+                            →
+                        </span>
+
+                    </a>
+
+
+                    <a
+                        href="{{ url_for('admin.reports') }}"
+                        class="secondary-action"
+                    >
+
+                        <span>
+                            📊
+                        </span>
+
+                        <span>
+                            Reports
+                        </span>
+
+                        <span>
+                            →
+                        </span>
+
+                    </a>
+
+                </div>
+
+            </section>
+
+
+            <!-- IMPORTANT NOTICE -->
+
+            <section class="dashboard-card">
+
+                <div class="card-header">
+
+                    <div>
+
+                        <span class="section-label">
+                            Important
+                        </span>
+
+                        <h2>
+                            Before Uploading
+                        </h2>
+
+                    </div>
+
+                </div>
+
+
+                <div class="account-actions">
+
+                    <div class="secondary-action">
+
+                        <span>
+                            ✓
+                        </span>
+
+                        <span>
+                            Confirm CSV format
+                        </span>
+
+                    </div>
+
+
+                    <div class="secondary-action">
+
+                        <span>
+                            ✓
+                        </span>
+
+                        <span>
+                            Check required fields
+                        </span>
+
+                    </div>
+
+
+                    <div class="secondary-action">
+
+                        <span>
+                            ✓
+                        </span>
+
+                        <span>
+                            Use valid complaint records
+                        </span>
+
+                    </div>
+
+
+                    <div class="secondary-action">
+
+                        <span>
+                            ✓
+                        </span>
+
+                        <span>
+                            Verify complaint categories
+                        </span>
+
+                    </div>
+
+
+                    <div class="secondary-action">
+
+                        <span>
+                            ✓
+                        </span>
+
+                        <span>
+                            Verify dataset values
+                        </span>
+
+                    </div>
+
+                </div>
+
+            </section>
+
+
+            <!-- MODEL INFORMATION -->
+
+            <section class="dashboard-card">
+
+                <div class="card-header">
+
+                    <div>
+
+                        <span class="section-label">
+                            Prediction Model
+                        </span>
+
+                        <h2>
+                            Random Forest
+                        </h2>
+
+                    </div>
+
+                </div>
+
+
+                <p>
+                    The system uses the complaint dataset to build and
+                    evaluate the Random Forest prediction model.
+                </p>
+
+
+                <div class="details-list">
+
+                    <div class="detail-row">
+
+                        <span>
+                            Minimum records
+                        </span>
+
+                        <strong>
+                            {{ config_model_minimum_records|default(10) }}
+                        </strong>
+
+                    </div>
+
+
+                    <div class="detail-row">
+
+                        <span>
+                            Test size
+                        </span>
+
+                        <strong>
+                            {{ config_model_test_size|default('20%') }}
+                        </strong>
+
+                    </div>
+
+
+                    <div class="detail-row">
+
+                        <span>
+                            Estimators
+                        </span>
+
+                        <strong>
+                            {{ config_model_estimators|default(100) }}
+                        </strong>
+
+                    </div>
+
+                </div>
+
+            </section>
+
+
+            <!-- SECURITY -->
+
+            <section class="dashboard-card">
+
+                <div class="card-header">
+
+                    <div>
+
+                        <span class="section-label">
+                            Access Control
+                        </span>
+
+                        <h2>
+                            Administrator Only
+                        </h2>
+
+                    </div>
+
+                </div>
+
+                <p>
+                    Dataset management is restricted to the authorized
+                    System Administrator. Other users cannot access this
+                    administrative function.
+                </p>
+
+            </section>
+
+        </aside>
+
+    </section>
+
+</section>
+
+{% endblock %}

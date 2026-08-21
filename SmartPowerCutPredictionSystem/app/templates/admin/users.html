@@ -1,0 +1,1230 @@
+{% extends "base.html" %}
+
+{% block title %}
+User Management | Smart Power Cut Prediction System
+{% endblock %}
+
+{% block content %}
+
+<section class="dashboard-page">
+
+    <!-- PAGE HEADER -->
+
+    <div class="dashboard-header">
+
+        <div>
+
+            <span class="section-label">
+                System Administration
+            </span>
+
+            <h1>
+                User Management
+            </h1>
+
+            <p>
+                Review registered users, manage account status, and
+                approve authorized Electricity Department Staff and
+                Senior Electricity Officer registration requests.
+            </p>
+
+        </div>
+
+        <div class="dashboard-header-actions">
+
+            <a
+                href="{{ url_for('admin.dashboard') }}"
+                class="btn btn-secondary"
+            >
+                ← Dashboard
+            </a>
+
+            <a
+                href="{{ url_for('admin.users') }}"
+                class="btn btn-primary"
+            >
+                ↻ Refresh
+            </a>
+
+        </div>
+
+    </div>
+
+
+    <!-- SUMMARY -->
+
+    <section class="dashboard-summary">
+
+        <article class="summary-card">
+
+            <div class="summary-icon">
+                👥
+            </div>
+
+            <div class="summary-content">
+
+                <span class="summary-label">
+                    Total Users
+                </span>
+
+                <strong class="summary-value">
+                    {{ total_users|default(users|default([])|length) }}
+                </strong>
+
+                <span class="summary-description">
+                    Registered accounts
+                </span>
+
+            </div>
+
+        </article>
+
+
+        <article class="summary-card">
+
+            <div class="summary-icon">
+                ✓
+            </div>
+
+            <div class="summary-content">
+
+                <span class="summary-label">
+                    Active Accounts
+                </span>
+
+                <strong class="summary-value">
+                    {{ active_users|default(0) }}
+                </strong>
+
+                <span class="summary-description">
+                    Accounts currently enabled
+                </span>
+
+            </div>
+
+        </article>
+
+
+        <article class="summary-card">
+
+            <div class="summary-icon">
+                ⏸
+            </div>
+
+            <div class="summary-content">
+
+                <span class="summary-label">
+                    Inactive Accounts
+                </span>
+
+                <strong class="summary-value">
+                    {{ inactive_users|default(0) }}
+                </strong>
+
+                <span class="summary-description">
+                    Accounts currently disabled
+                </span>
+
+            </div>
+
+        </article>
+
+
+        <article class="summary-card">
+
+            <div class="summary-icon">
+                ⏳
+            </div>
+
+            <div class="summary-content">
+
+                <span class="summary-label">
+                    Pending Approval
+                </span>
+
+                <strong class="summary-value">
+                    {{ pending_approval_count|default(pending_count|default(pending_users|default(0))) }}
+                </strong>
+
+                <span class="summary-description">
+                    Authorized role requests
+                </span>
+
+            </div>
+
+        </article>
+
+    </section>
+
+
+    <!-- AUTHORIZATION RULE -->
+
+    <section class="dashboard-card">
+
+        <div class="card-header">
+
+            <div>
+
+                <span class="section-label">
+                    Authorization Policy
+                </span>
+
+                <h2>
+                    Account Registration and Approval
+                </h2>
+
+            </div>
+
+        </div>
+
+
+        <div class="information-grid">
+
+            <div class="information-card">
+
+                <div class="information-card-icon">
+                    👤
+                </div>
+
+                <h3>
+                    Resident
+                </h3>
+
+                <p>
+                    Residents are public users and can create their own
+                    accounts directly and use the resident functions
+                    after successful registration and login.
+                </p>
+
+            </div>
+
+
+            <div class="information-card">
+
+                <div class="information-card-icon">
+                    🧑‍💼
+                </div>
+
+                <h3>
+                    Department Staff
+                </h3>
+
+                <p>
+                    Staff registration requires Administrator approval
+                    before the user can access the Electricity Department
+                    Staff dashboard.
+                </p>
+
+            </div>
+
+
+            <div class="information-card">
+
+                <div class="information-card-icon">
+                    🧑‍⚖️
+                </div>
+
+                <h3>
+                    Senior Officer
+                </h3>
+
+                <p>
+                    Senior Electricity Officer registration requires
+                    Administrator approval before access to the officer
+                    dashboard is permitted.
+                </p>
+
+            </div>
+
+        </div>
+
+    </section>
+
+
+    <!-- FILTERS -->
+
+    <section class="dashboard-card">
+
+        <div class="card-header">
+
+            <div>
+
+                <span class="section-label">
+                    User Search
+                </span>
+
+                <h2>
+                    Filter Accounts
+                </h2>
+
+            </div>
+
+        </div>
+
+
+        <form
+            method="GET"
+            action="{{ url_for('admin.users') }}"
+            class="auth-form"
+        >
+
+            <div class="form-row">
+
+                <div class="form-group">
+
+                    <label for="search">
+                        Search
+                    </label>
+
+                    <input
+                        type="text"
+                        id="search"
+                        name="search"
+                        value="{{ request.args.get('search', '') }}"
+                        placeholder="Name, username, or email"
+                    >
+
+                </div>
+
+
+                <div class="form-group">
+
+                    <label for="role">
+                        Role
+                    </label>
+
+                    <select
+                        id="role"
+                        name="role"
+                    >
+
+                        <option value="">
+                            All Roles
+                        </option>
+
+                        <option
+                            value="resident"
+                            {% if request.args.get('role') == 'resident' %}selected{% endif %}
+                        >
+                            Resident
+                        </option>
+
+                        <option
+                            value="staff"
+                            {% if request.args.get('role') == 'staff' %}selected{% endif %}
+                        >
+                            Electricity Department Staff
+                        </option>
+
+                        <option
+                            value="officer"
+                            {% if request.args.get('role') == 'officer' %}selected{% endif %}
+                        >
+                            Senior Electricity Officer
+                        </option>
+
+                        <option
+                            value="admin"
+                            {% if request.args.get('role') == 'admin' %}selected{% endif %}
+                        >
+                            Administrator
+                        </option>
+
+                    </select>
+
+                </div>
+
+
+                <div class="form-group">
+
+                    <label for="status">
+                        Account Status
+                    </label>
+
+                    <select
+                        id="status"
+                        name="status"
+                    >
+
+                        <option value="">
+                            All Statuses
+                        </option>
+
+                        <option
+                            value="active"
+                            {% if request.args.get('status') == 'active' %}selected{% endif %}
+                        >
+                            Active
+                        </option>
+
+                        <option
+                            value="inactive"
+                            {% if request.args.get('status') == 'inactive' %}selected{% endif %}
+                        >
+                            Inactive
+                        </option>
+
+                        <option
+                            value="pending"
+                            {% if request.args.get('status') == 'pending' %}selected{% endif %}
+                        >
+                            Pending Approval
+                        </option>
+
+                    </select>
+
+                </div>
+
+
+                <div class="form-group form-group-action">
+
+                    <label>
+                        &nbsp;
+                    </label>
+
+                    <button
+                        type="submit"
+                        class="btn btn-primary"
+                    >
+                        Search
+                    </button>
+
+                </div>
+
+            </div>
+
+        </form>
+
+    </section>
+
+
+    <!-- USER TABLE -->
+
+    <section class="dashboard-card">
+
+        <div class="card-header">
+
+            <div>
+
+                <span class="section-label">
+                    Registered Accounts
+                </span>
+
+                <h2>
+                    User Accounts
+                </h2>
+
+            </div>
+
+            <span class="record-count">
+                {{ users|default([])|length }}
+                record{% if users|default([])|length != 1 %}s{% endif %}
+            </span>
+
+        </div>
+
+
+        {% if users|default([]) %}
+
+            <div class="complaint-table-wrapper">
+
+                <table class="data-table">
+
+                    <thead>
+
+                        <tr>
+
+                            <th>
+                                User
+                            </th>
+
+                            <th>
+                                Email
+                            </th>
+
+                            <th>
+                                Role
+                            </th>
+
+                            <th>
+                                Registration
+                            </th>
+
+                            <th>
+                                Account Status
+                            </th>
+
+                            <th>
+                                Approval
+                            </th>
+
+                            <th>
+                                Action
+                            </th>
+
+                        </tr>
+
+                    </thead>
+
+
+                    <tbody>
+
+                        {% for user in users %}
+
+                            {% set user_role =
+                                user.role|default('resident')
+                                |lower
+                                |replace(' ', '_')
+                            %}
+
+                            {% set account_status =
+                                user.status|default(
+                                    'active' if user.is_active|default(false)
+                                    else 'inactive'
+                                )
+                                |lower
+                                |replace(' ', '_')
+                            %}
+
+                            <tr>
+
+                                <!-- USER -->
+
+                                <td>
+
+                                    <strong>
+                                        {{ user.name|default(
+                                            user.full_name|default(
+                                                user.username|default(
+                                                    'User #' ~ user.id
+                                                )
+                                            )
+                                        ) }}
+                                    </strong>
+
+                                    {% if user.username %}
+
+                                        <small class="table-subtext">
+                                            @{{ user.username }}
+                                        </small>
+
+                                    {% endif %}
+
+                                </td>
+
+
+                                <!-- EMAIL -->
+
+                                <td>
+
+                                    {{ user.email|default('—') }}
+
+                                </td>
+
+
+                                <!-- ROLE -->
+
+                                <td>
+
+                                    {% if user_role == 'resident' %}
+
+                                        <span class="status-badge">
+                                            Resident
+                                        </span>
+
+                                    {% elif user_role in ['staff', 'electricity_staff', 'electricity_department_staff'] %}
+
+                                        <span class="status-badge">
+                                            Electricity Department Staff
+                                        </span>
+
+                                    {% elif user_role in ['officer', 'senior_officer', 'senior_electricity_officer'] %}
+
+                                        <span class="status-badge">
+                                            Senior Electricity Officer
+                                        </span>
+
+                                    {% elif user_role == 'admin' %}
+
+                                        <span class="status-badge">
+                                            Administrator
+                                        </span>
+
+                                    {% else %}
+
+                                        <span class="status-badge">
+                                            {{ user.role|default('Unknown')|replace('_', ' ')|title }}
+                                        </span>
+
+                                    {% endif %}
+
+                                </td>
+
+
+                                <!-- REGISTRATION -->
+
+                                <td>
+
+                                    {% if user.created_at %}
+
+                                        {% if user.created_at.strftime is defined %}
+
+                                            {{ user.created_at.strftime(
+                                                '%d %b %Y'
+                                            ) }}
+
+                                        {% else %}
+
+                                            {{ user.created_at }}
+
+                                        {% endif %}
+
+                                    {% else %}
+
+                                        —
+
+                                    {% endif %}
+
+                                </td>
+
+
+                                <!-- ACCOUNT STATUS -->
+
+                                <td>
+
+                                    {% if user.is_active is defined %}
+
+                                        {% if user.is_active %}
+
+                                            <span class="status-badge status-resolved">
+                                                Active
+                                            </span>
+
+                                        {% else %}
+
+                                            <span class="status-badge status-withdrawn">
+                                                Inactive
+                                            </span>
+
+                                        {% endif %}
+
+                                    {% elif account_status == 'active' %}
+
+                                        <span class="status-badge status-resolved">
+                                            Active
+                                        </span>
+
+                                    {% else %}
+
+                                        <span class="status-badge status-withdrawn">
+                                            Inactive
+                                        </span>
+
+                                    {% endif %}
+
+                                </td>
+
+
+                                <!-- APPROVAL -->
+
+                                <td>
+
+                                    {% if user.approval_status is defined %}
+
+                                        {% if user.approval_status|lower == 'pending' %}
+
+                                            <span class="status-badge status-pending">
+                                                Pending
+                                            </span>
+
+                                        {% elif user.approval_status|lower in ['approved', 'accepted'] %}
+
+                                            <span class="status-badge status-resolved">
+                                                Approved
+                                            </span>
+
+                                        {% elif user.approval_status|lower in ['rejected', 'declined'] %}
+
+                                            <span class="status-badge status-withdrawn">
+                                                Rejected
+                                            </span>
+
+                                        {% else %}
+
+                                            <span class="status-badge">
+                                                {{ user.approval_status|replace('_', ' ')|title }}
+                                            </span>
+
+                                        {% endif %}
+
+                                    {% elif user.is_approved is defined %}
+
+                                        {% if user.is_approved %}
+
+                                            <span class="status-badge status-resolved">
+                                                Approved
+                                            </span>
+
+                                        {% else %}
+
+                                            <span class="status-badge status-pending">
+                                                Pending
+                                            </span>
+
+                                        {% endif %}
+
+                                    {% elif user_role == 'resident' or user_role == 'admin' %}
+
+                                        <span class="status-badge status-resolved">
+                                            Not Required
+                                        </span>
+
+                                    {% else %}
+
+                                        <span class="status-badge status-pending">
+                                            Review
+                                        </span>
+
+                                    {% endif %}
+
+                                </td>
+
+
+                                <!-- ACTION -->
+
+                                <td>
+
+                                    <div class="table-actions">
+
+                                        {% if user_role in [
+                                            'staff',
+                                            'electricity_staff',
+                                            'electricity_department_staff',
+                                            'officer',
+                                            'senior_officer',
+                                            'senior_electricity_officer'
+                                        ] %}
+
+                                            {% if user.approval_status is defined and user.approval_status|lower == 'pending' %}
+
+                                                <form
+                                                    method="POST"
+                                                    action="{{ url_for('admin.approve_user', user_id=user.id) }}"
+                                                    class="inline-form"
+                                                >
+
+                                                    <input
+                                                        type="hidden"
+                                                        name="action"
+                                                        value="approve"
+                                                    >
+
+                                                    <input
+                                                        type="hidden"
+                                                        name="user_id"
+                                                        value="{{ user.id }}"
+                                                    >
+
+                                                    {% if csrf_token is defined %}
+
+                                                        <input
+                                                            type="hidden"
+                                                            name="csrf_token"
+                                                            value="{{ csrf_token() }}"
+                                                        >
+
+                                                    {% endif %}
+
+                                                    <button
+                                                        type="submit"
+                                                        class="table-action"
+                                                    >
+                                                        Approve
+                                                    </button>
+
+                                                </form>
+
+                                            {% elif user.is_approved is defined and not user.is_approved %}
+
+                                                <form
+                                                    method="POST"
+                                                    action="{{ url_for('admin.approve_user', user_id=user.id) }}"
+                                                    class="inline-form"
+                                                >
+
+                                                    <input
+                                                        type="hidden"
+                                                        name="action"
+                                                        value="approve"
+                                                    >
+
+                                                    <input
+                                                        type="hidden"
+                                                        name="user_id"
+                                                        value="{{ user.id }}"
+                                                    >
+
+                                                    {% if csrf_token is defined %}
+
+                                                        <input
+                                                            type="hidden"
+                                                            name="csrf_token"
+                                                            value="{{ csrf_token() }}"
+                                                        >
+
+                                                    {% endif %}
+
+                                                    <button
+                                                        type="submit"
+                                                        class="table-action"
+                                                    >
+                                                        Approve
+                                                    </button>
+
+                                                </form>
+
+                                            {% endif %}
+
+                                        {% endif %}
+
+
+                                        {% if user.role|default('')|lower != 'admin' %}
+
+                                            {% if user.is_active is defined and user.is_active %}
+
+                                                <form
+                                                    method="POST"
+                                                    action="{{ url_for('admin.deactivate_user', user_id=user.id) }}"
+                                                    class="inline-form"
+                                                >
+
+                                                    <input
+                                                        type="hidden"
+                                                        name="action"
+                                                        value="deactivate"
+                                                    >
+
+                                                    <input
+                                                        type="hidden"
+                                                        name="user_id"
+                                                        value="{{ user.id }}"
+                                                    >
+
+                                                    {% if csrf_token is defined %}
+
+                                                        <input
+                                                            type="hidden"
+                                                            name="csrf_token"
+                                                            value="{{ csrf_token() }}"
+                                                        >
+
+                                                    {% endif %}
+
+                                                    <button
+                                                        type="submit"
+                                                        class="table-action"
+                                                    >
+                                                        Deactivate
+                                                    </button>
+
+                                                </form>
+
+                                            {% else %}
+
+                                                <form
+                                                    method="POST"
+                                                    action="{{ url_for('admin.activate_user', user_id=user.id) }}"
+                                                    class="inline-form"
+                                                >
+
+                                                    <input
+                                                        type="hidden"
+                                                        name="action"
+                                                        value="activate"
+                                                    >
+
+                                                    <input
+                                                        type="hidden"
+                                                        name="user_id"
+                                                        value="{{ user.id }}"
+                                                    >
+
+                                                    {% if csrf_token is defined %}
+
+                                                        <input
+                                                            type="hidden"
+                                                            name="csrf_token"
+                                                            value="{{ csrf_token() }}"
+                                                        >
+
+                                                    {% endif %}
+
+                                                    <button
+                                                        type="submit"
+                                                        class="table-action"
+                                                    >
+                                                        Activate
+                                                    </button>
+
+                                                </form>
+
+                                            {% endif %}
+
+                                        {% endif %}
+
+                                    </div>
+
+                                </td>
+
+                            </tr>
+
+                        {% endfor %}
+
+                    </tbody>
+
+                </table>
+
+            </div>
+
+        {% else %}
+
+            <div class="empty-state">
+
+                <div class="empty-state-icon">
+                    👥
+                </div>
+
+                <h3>
+                    No Users Found
+                </h3>
+
+                <p>
+                    No user accounts match the selected search or
+                    filtering criteria.
+                </p>
+
+                <a
+                    href="{{ url_for('admin.users') }}"
+                    class="btn btn-secondary"
+                >
+                    Clear Filters
+                </a>
+
+            </div>
+
+        {% endif %}
+
+    </section>
+
+
+    <!-- ACCOUNT MANAGEMENT GUIDELINES -->
+
+    <section class="dashboard-grid">
+
+        <div class="dashboard-main">
+
+            <section class="dashboard-card">
+
+                <div class="card-header">
+
+                    <div>
+
+                        <span class="section-label">
+                            Account Management
+                        </span>
+
+                        <h2>
+                            Administrator Guidelines
+                        </h2>
+
+                    </div>
+
+                </div>
+
+
+                <div class="information-grid">
+
+                    <div class="information-card">
+
+                        <div class="information-card-icon">
+                            1
+                        </div>
+
+                        <h3>
+                            Review Requests
+                        </h3>
+
+                        <p>
+                            Review Staff and Senior Officer registration
+                            requests before approving role-based access.
+                        </p>
+
+                    </div>
+
+
+                    <div class="information-card">
+
+                        <div class="information-card-icon">
+                            2
+                        </div>
+
+                        <h3>
+                            Approve Authorized Roles
+                        </h3>
+
+                        <p>
+                            Approved Staff and Officers can subsequently
+                            sign in and access their assigned dashboards.
+                        </p>
+
+                    </div>
+
+
+                    <div class="information-card">
+
+                        <div class="information-card-icon">
+                            3
+                        </div>
+
+                        <h3>
+                            Control Account Access
+                        </h3>
+
+                        <p>
+                            Activate or deactivate accounts according
+                            to current system access requirements.
+                        </p>
+
+                    </div>
+
+
+                    <div class="information-card">
+
+                        <div class="information-card-icon">
+                            4
+                        </div>
+
+                        <h3>
+                            Protect Administrator Access
+                        </h3>
+
+                        <p>
+                            Administrator accounts should remain under
+                            controlled system management.
+                        </p>
+
+                    </div>
+
+                </div>
+
+            </section>
+
+        </div>
+
+
+        <!-- SIDEBAR -->
+
+        <aside class="dashboard-sidebar">
+
+            <section class="dashboard-card">
+
+                <div class="card-header">
+
+                    <div>
+
+                        <span class="section-label">
+                            Administration
+                        </span>
+
+                        <h2>
+                            Quick Access
+                        </h2>
+
+                    </div>
+
+                </div>
+
+
+                <div class="account-actions">
+
+                    <a
+                        href="{{ url_for('admin.dashboard') }}"
+                        class="secondary-action"
+                    >
+
+                        <span>
+                            🏠
+                        </span>
+
+                        <span>
+                            Dashboard
+                        </span>
+
+                        <span>
+                            →
+                        </span>
+
+                    </a>
+
+
+                    <a
+                        href="{{ url_for('admin.users') }}"
+                        class="secondary-action"
+                    >
+
+                        <span>
+                            👥
+                        </span>
+
+                        <span>
+                            User Management
+                        </span>
+
+                        <span>
+                            →
+                        </span>
+
+                    </a>
+
+
+                    <a
+                        href="{{ url_for('admin.staff_accounts') }}"
+                        class="secondary-action"
+                    >
+
+                        <span>
+                            🧑‍💼
+                        </span>
+
+                        <span>
+                            Staff Accounts
+                        </span>
+
+                        <span>
+                            →
+                        </span>
+
+                    </a>
+
+
+                    <a
+                        href="{{ url_for('admin.reports') }}"
+                        class="secondary-action"
+                    >
+
+                        <span>
+                            📊
+                        </span>
+
+                        <span>
+                            System Reports
+                        </span>
+
+                        <span>
+                            →
+                        </span>
+
+                    </a>
+
+                </div>
+
+            </section>
+
+
+            <section class="dashboard-card">
+
+                <div class="card-header">
+
+                    <div>
+
+                        <span class="section-label">
+                            Access Policy
+                        </span>
+
+                        <h2>
+                            Role Access
+                        </h2>
+
+                    </div>
+
+                </div>
+
+                <p>
+                    Resident accounts can be created directly. Staff
+                    and Senior Officer accounts require Administrator
+                    approval before their respective role dashboards
+                    become available.
+                </p>
+
+            </section>
+
+
+            <section class="dashboard-card">
+
+                <div class="card-header">
+
+                    <div>
+
+                        <span class="section-label">
+                            Account Status
+                        </span>
+
+                        <h2>
+                            Access Control
+                        </h2>
+
+                    </div>
+
+                </div>
+
+                <div class="account-actions">
+
+                    <div class="secondary-action">
+
+                        <span>
+                            ✓
+                        </span>
+
+                        <span>
+                            Active accounts can sign in
+                        </span>
+
+                    </div>
+
+
+                    <div class="secondary-action">
+
+                        <span>
+                            ⏸
+                        </span>
+
+                        <span>
+                            Inactive accounts are restricted
+                        </span>
+
+                    </div>
+
+
+                    <div class="secondary-action">
+
+                        <span>
+                            ⏳
+                        </span>
+
+                        <span>
+                            Pending authorized accounts await approval
+                        </span>
+
+                    </div>
+
+                </div>
+
+            </section>
+
+        </aside>
+
+    </section>
+
+</section>
+
+{% endblock %}

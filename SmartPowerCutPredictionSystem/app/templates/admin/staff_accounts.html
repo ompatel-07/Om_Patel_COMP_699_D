@@ -1,0 +1,1369 @@
+{% extends "base.html" %}
+
+{% block title %}
+Staff Accounts | Smart Power Cut Prediction System
+{% endblock %}
+
+{% block content %}
+
+<section class="dashboard-page">
+
+    <!-- PAGE HEADER -->
+
+    <div class="dashboard-header">
+
+        <div>
+
+            <span class="section-label">
+                System Administration
+            </span>
+
+            <h1>
+                Staff Accounts
+            </h1>
+
+            <p>
+                Create, review, approve, activate, and manage
+                Electricity Department Staff and Senior Electricity
+                Officer accounts.
+            </p>
+
+        </div>
+
+        <div class="dashboard-header-actions">
+
+            <a
+                href="{{ url_for('admin.dashboard') }}"
+                class="btn btn-secondary"
+            >
+                ← Dashboard
+            </a>
+
+            <a
+                href="{{ url_for('admin.staff_accounts') }}"
+                class="btn btn-primary"
+            >
+                ↻ Refresh
+            </a>
+
+        </div>
+
+    </div>
+
+
+    <!-- SUMMARY -->
+
+    <section class="dashboard-summary">
+
+        <article class="summary-card">
+
+            <div class="summary-icon">
+                🧑‍💼
+            </div>
+
+            <div class="summary-content">
+
+                <span class="summary-label">
+                    Department Staff
+                </span>
+
+                <strong class="summary-value">
+                    {{ electricity_staff_count|default(0) }}
+                </strong>
+
+                <span class="summary-description">
+                    Electricity Department Staff accounts
+                </span>
+
+            </div>
+
+        </article>
+
+
+        <article class="summary-card">
+
+            <div class="summary-icon">
+                🧑‍⚖️
+            </div>
+
+            <div class="summary-content">
+
+                <span class="summary-label">
+                    Senior Officers
+                </span>
+
+                <strong class="summary-value">
+                    {{ senior_officer_count|default(0) }}
+                </strong>
+
+                <span class="summary-description">
+                    Senior Electricity Officer accounts
+                </span>
+
+            </div>
+
+        </article>
+
+
+        <article class="summary-card">
+
+            <div class="summary-icon">
+                ✓
+            </div>
+
+            <div class="summary-content">
+
+                <span class="summary-label">
+                    Active Staff
+                </span>
+
+                <strong class="summary-value">
+                    {{ active_staff_count|default(0) }}
+                </strong>
+
+                <span class="summary-description">
+                    Accounts currently enabled
+                </span>
+
+            </div>
+
+        </article>
+
+
+        <article class="summary-card">
+
+            <div class="summary-icon">
+                ⏳
+            </div>
+
+            <div class="summary-content">
+
+                <span class="summary-label">
+                    Pending Approval
+                </span>
+
+                <strong class="summary-value">
+                    {{ pending_staff_count|default(0) }}
+                </strong>
+
+                <span class="summary-description">
+                    Registration requests awaiting review
+                </span>
+
+            </div>
+
+        </article>
+
+    </section>
+
+
+    <!-- CREATE STAFF ACCOUNT -->
+
+    <section class="dashboard-card">
+
+        <div class="card-header">
+
+            <div>
+
+                <span class="section-label">
+                    Account Creation
+                </span>
+
+                <h2>
+                    Create Staff Account
+                </h2>
+
+            </div>
+
+        </div>
+
+
+        <div class="information-note">
+
+            <span>
+                i
+            </span>
+
+            <p>
+                The Administrator can create authorized Electricity
+                Department Staff and Senior Electricity Officer
+                accounts. These accounts are restricted to their
+                assigned role and cannot access resident functions
+                through the staff dashboard.
+            </p>
+
+        </div>
+
+
+        <form
+            method="POST"
+            action="{{ url_for('admin.staff_accounts') }}"
+            class="auth-form"
+        >
+
+            <input
+                type="hidden"
+                name="action"
+                value="create"
+            >
+
+            {% if csrf_token is defined %}
+
+                <input
+                    type="hidden"
+                    name="csrf_token"
+                    value="{{ csrf_token() }}"
+                >
+
+            {% endif %}
+
+
+            <div class="form-row">
+
+                <div class="form-group">
+
+                    <label for="full_name">
+                        Full Name
+                    </label>
+
+                    <input
+                        type="text"
+                        id="full_name"
+                        name="full_name"
+                        placeholder="Enter full name"
+                        required
+                    >
+
+                </div>
+
+
+                <div class="form-group">
+
+                    <label for="username">
+                        Username
+                    </label>
+
+                    <input
+                        type="text"
+                        id="username"
+                        name="username"
+                        placeholder="Enter username"
+                        required
+                    >
+
+                </div>
+
+            </div>
+
+
+            <div class="form-row">
+
+                <div class="form-group">
+
+                    <label for="email">
+                        Email Address
+                    </label>
+
+                    <input
+                        type="email"
+                        id="email"
+                        name="email"
+                        placeholder="Enter official email address"
+                        required
+                    >
+
+                </div>
+
+
+                <div class="form-group">
+
+                    <label for="role">
+                        Staff Role
+                    </label>
+
+                    <select
+                        id="role"
+                        name="role"
+                        required
+                    >
+
+                        <option value="">
+                            Select Role
+                        </option>
+
+                        <option value="staff">
+                            Electricity Department Staff
+                        </option>
+
+                        <option value="officer">
+                            Senior Electricity Officer
+                        </option>
+
+                    </select>
+
+                </div>
+
+            </div>
+
+
+            <div class="form-row">
+
+                <div class="form-group">
+
+                    <label for="password">
+                        Temporary Password
+                    </label>
+
+                    <input
+                        type="password"
+                        id="password"
+                        name="password"
+                        placeholder="Create temporary password"
+                        required
+                    >
+
+                </div>
+
+
+                <div class="form-group">
+
+                    <label for="confirm_password">
+                        Confirm Password
+                    </label>
+
+                    <input
+                        type="password"
+                        id="confirm_password"
+                        name="confirm_password"
+                        placeholder="Confirm password"
+                        required
+                    >
+
+                </div>
+
+            </div>
+
+
+            <div class="form-actions">
+
+                <button
+                    type="submit"
+                    class="btn btn-primary"
+                >
+                    Create Staff Account
+                </button>
+
+            </div>
+
+        </form>
+
+    </section>
+
+
+    <!-- FILTER -->
+
+    <section class="dashboard-card">
+
+        <div class="card-header">
+
+            <div>
+
+                <span class="section-label">
+                    Staff Search
+                </span>
+
+                <h2>
+                    Filter Staff Accounts
+                </h2>
+
+            </div>
+
+        </div>
+
+
+        <form
+            method="GET"
+            action="{{ url_for('admin.staff_accounts') }}"
+            class="auth-form"
+        >
+
+            <div class="form-row">
+
+                <div class="form-group">
+
+                    <label for="search">
+                        Search
+                    </label>
+
+                    <input
+                        type="text"
+                        id="search"
+                        name="search"
+                        value="{{ request.args.get('search', '') }}"
+                        placeholder="Name, username, or email"
+                    >
+
+                </div>
+
+
+                <div class="form-group">
+
+                    <label for="role_filter">
+                        Role
+                    </label>
+
+                    <select
+                        id="role_filter"
+                        name="role"
+                    >
+
+                        <option value="">
+                            All Staff Roles
+                        </option>
+
+                        <option
+                            value="staff"
+                            {% if request.args.get('role') == 'staff' %}selected{% endif %}
+                        >
+                            Electricity Department Staff
+                        </option>
+
+                        <option
+                            value="officer"
+                            {% if request.args.get('role') == 'officer' %}selected{% endif %}
+                        >
+                            Senior Electricity Officer
+                        </option>
+
+                    </select>
+
+                </div>
+
+
+                <div class="form-group">
+
+                    <label for="status_filter">
+                        Status
+                    </label>
+
+                    <select
+                        id="status_filter"
+                        name="status"
+                    >
+
+                        <option value="">
+                            All Statuses
+                        </option>
+
+                        <option
+                            value="active"
+                            {% if request.args.get('status') == 'active' %}selected{% endif %}
+                        >
+                            Active
+                        </option>
+
+                        <option
+                            value="inactive"
+                            {% if request.args.get('status') == 'inactive' %}selected{% endif %}
+                        >
+                            Inactive
+                        </option>
+
+                        <option
+                            value="pending"
+                            {% if request.args.get('status') == 'pending' %}selected{% endif %}
+                        >
+                            Pending Approval
+                        </option>
+
+                    </select>
+
+                </div>
+
+
+                <div class="form-group form-group-action">
+
+                    <label>
+                        &nbsp;
+                    </label>
+
+                    <button
+                        type="submit"
+                        class="btn btn-primary"
+                    >
+                        Search
+                    </button>
+
+                </div>
+
+            </div>
+
+        </form>
+
+    </section>
+
+
+    <!-- STAFF TABLE -->
+
+    <section class="dashboard-card">
+
+        <div class="card-header">
+
+            <div>
+
+                <span class="section-label">
+                    Authorized Personnel
+                </span>
+
+                <h2>
+                    Staff Accounts
+                </h2>
+
+            </div>
+
+            <span class="record-count">
+                {{ staff_accounts|default([])|length }}
+                record{% if staff_accounts|default([])|length != 1 %}s{% endif %}
+            </span>
+
+        </div>
+
+
+        {% if staff_accounts|default([]) %}
+
+            <div class="complaint-table-wrapper">
+
+                <table class="data-table">
+
+                    <thead>
+
+                        <tr>
+
+                            <th>
+                                Staff Member
+                            </th>
+
+                            <th>
+                                Email
+                            </th>
+
+                            <th>
+                                Role
+                            </th>
+
+                            <th>
+                                Registration
+                            </th>
+
+                            <th>
+                                Approval
+                            </th>
+
+                            <th>
+                                Account Status
+                            </th>
+
+                            <th>
+                                Actions
+                            </th>
+
+                        </tr>
+
+                    </thead>
+
+
+                    <tbody>
+
+                        {% for staff in staff_accounts %}
+
+                            {% set role =
+                                staff.role|default('staff')
+                                |lower
+                                |replace(' ', '_')
+                            %}
+
+
+                            <tr>
+
+                                <!-- NAME -->
+
+                                <td>
+
+                                    <strong>
+                                        {{ staff.name|default(
+                                            staff.full_name|default(
+                                                staff.username|default(
+                                                    'Staff #' ~ staff.id
+                                                )
+                                            )
+                                        ) }}
+                                    </strong>
+
+                                    {% if staff.username %}
+
+                                        <small class="table-subtext">
+                                            @{{ staff.username }}
+                                        </small>
+
+                                    {% endif %}
+
+                                </td>
+
+
+                                <!-- EMAIL -->
+
+                                <td>
+
+                                    {{ staff.email|default('—') }}
+
+                                </td>
+
+
+                                <!-- ROLE -->
+
+                                <td>
+
+                                    {% if role in [
+                                        'staff',
+                                        'electricity_staff',
+                                        'electricity_department_staff'
+                                    ] %}
+
+                                        <span class="status-badge">
+                                            Electricity Department Staff
+                                        </span>
+
+                                    {% elif role in [
+                                        'officer',
+                                        'senior_officer',
+                                        'senior_electricity_officer'
+                                    ] %}
+
+                                        <span class="status-badge">
+                                            Senior Electricity Officer
+                                        </span>
+
+                                    {% else %}
+
+                                        <span class="status-badge">
+                                            {{ staff.role|default('Unknown')|replace('_', ' ')|title }}
+                                        </span>
+
+                                    {% endif %}
+
+                                </td>
+
+
+                                <!-- REGISTRATION -->
+
+                                <td>
+
+                                    {% if staff.created_at %}
+
+                                        {% if staff.created_at.strftime is defined %}
+
+                                            {{ staff.created_at.strftime(
+                                                '%d %b %Y'
+                                            ) }}
+
+                                        {% else %}
+
+                                            {{ staff.created_at }}
+
+                                        {% endif %}
+
+                                    {% else %}
+
+                                        —
+
+                                    {% endif %}
+
+                                </td>
+
+
+                                <!-- APPROVAL -->
+
+                                <td>
+
+                                    {% if staff.approval_status is defined %}
+
+                                        {% if staff.approval_status|lower == 'pending' %}
+
+                                            <span class="status-badge status-pending">
+                                                Pending
+                                            </span>
+
+                                        {% elif staff.approval_status|lower in [
+                                            'approved',
+                                            'accepted'
+                                        ] %}
+
+                                            <span class="status-badge status-resolved">
+                                                Approved
+                                            </span>
+
+                                        {% elif staff.approval_status|lower in [
+                                            'rejected',
+                                            'declined'
+                                        ] %}
+
+                                            <span class="status-badge status-withdrawn">
+                                                Rejected
+                                            </span>
+
+                                        {% else %}
+
+                                            <span class="status-badge">
+                                                {{ staff.approval_status|replace('_', ' ')|title }}
+                                            </span>
+
+                                        {% endif %}
+
+                                    {% elif staff.is_approved is defined %}
+
+                                        {% if staff.is_approved %}
+
+                                            <span class="status-badge status-resolved">
+                                                Approved
+                                            </span>
+
+                                        {% else %}
+
+                                            <span class="status-badge status-pending">
+                                                Pending
+                                            </span>
+
+                                        {% endif %}
+
+                                    {% else %}
+
+                                        <span class="status-badge status-pending">
+                                            Review
+                                        </span>
+
+                                    {% endif %}
+
+                                </td>
+
+
+                                <!-- ACCOUNT STATUS -->
+
+                                <td>
+
+                                    {% if staff.is_active is defined and staff.is_active %}
+
+                                        <span class="status-badge status-resolved">
+                                            Active
+                                        </span>
+
+                                    {% else %}
+
+                                        <span class="status-badge status-withdrawn">
+                                            Inactive
+                                        </span>
+
+                                    {% endif %}
+
+                                </td>
+
+
+                                <!-- ACTIONS -->
+
+                                <td>
+
+                                    <div class="table-actions">
+
+
+                                        <!-- APPROVE -->
+
+                                        {% if staff.approval_status is defined and
+                                              staff.approval_status|lower == 'pending' %}
+
+                                            <form
+                                                method="POST"
+                                                action="{{ url_for('admin.staff_accounts') }}"
+                                                class="inline-form"
+                                            >
+
+                                                <input
+                                                    type="hidden"
+                                                    name="action"
+                                                    value="approve"
+                                                >
+
+                                                <input
+                                                    type="hidden"
+                                                    name="user_id"
+                                                    value="{{ staff.id }}"
+                                                >
+
+                                                {% if csrf_token is defined %}
+
+                                                    <input
+                                                        type="hidden"
+                                                        name="csrf_token"
+                                                        value="{{ csrf_token() }}"
+                                                    >
+
+                                                {% endif %}
+
+                                                <button
+                                                    type="submit"
+                                                    class="table-action"
+                                                >
+                                                    Approve
+                                                </button>
+
+                                            </form>
+
+                                        {% elif staff.is_approved is defined and
+                                                not staff.is_approved %}
+
+                                            <form
+                                                method="POST"
+                                                action="{{ url_for('admin.staff_accounts') }}"
+                                                class="inline-form"
+                                            >
+
+                                                <input
+                                                    type="hidden"
+                                                    name="action"
+                                                    value="approve"
+                                                >
+
+                                                <input
+                                                    type="hidden"
+                                                    name="user_id"
+                                                    value="{{ staff.id }}"
+                                                >
+
+                                                {% if csrf_token is defined %}
+
+                                                    <input
+                                                        type="hidden"
+                                                        name="csrf_token"
+                                                        value="{{ csrf_token() }}"
+                                                    >
+
+                                                {% endif %}
+
+                                                <button
+                                                    type="submit"
+                                                    class="table-action"
+                                                >
+                                                    Approve
+                                                </button>
+
+                                            </form>
+
+                                        {% endif %}
+
+
+                                        <!-- ACTIVATE / DEACTIVATE -->
+
+                                        {% if staff.is_active is defined and staff.is_active %}
+
+                                            <form
+                                                method="POST"
+                                                action="{{ url_for('admin.staff_accounts') }}"
+                                                class="inline-form"
+                                            >
+
+                                                <input
+                                                    type="hidden"
+                                                    name="action"
+                                                    value="deactivate"
+                                                >
+
+                                                <input
+                                                    type="hidden"
+                                                    name="user_id"
+                                                    value="{{ staff.id }}"
+                                                >
+
+                                                {% if csrf_token is defined %}
+
+                                                    <input
+                                                        type="hidden"
+                                                        name="csrf_token"
+                                                        value="{{ csrf_token() }}"
+                                                    >
+
+                                                {% endif %}
+
+                                                <button
+                                                    type="submit"
+                                                    class="table-action"
+                                                >
+                                                    Deactivate
+                                                </button>
+
+                                            </form>
+
+                                        {% else %}
+
+                                            <form
+                                                method="POST"
+                                                action="{{ url_for('admin.staff_accounts') }}"
+                                                class="inline-form"
+                                            >
+
+                                                <input
+                                                    type="hidden"
+                                                    name="action"
+                                                    value="activate"
+                                                >
+
+                                                <input
+                                                    type="hidden"
+                                                    name="user_id"
+                                                    value="{{ staff.id }}"
+                                                >
+
+                                                {% if csrf_token is defined %}
+
+                                                    <input
+                                                        type="hidden"
+                                                        name="csrf_token"
+                                                        value="{{ csrf_token() }}"
+                                                    >
+
+                                                {% endif %}
+
+                                                <button
+                                                    type="submit"
+                                                    class="table-action"
+                                                >
+                                                    Activate
+                                                </button>
+
+                                            </form>
+
+                                        {% endif %}
+
+                                    </div>
+
+                                </td>
+
+                            </tr>
+
+                        {% endfor %}
+
+                    </tbody>
+
+                </table>
+
+            </div>
+
+        {% else %}
+
+            <div class="empty-state">
+
+                <div class="empty-state-icon">
+                    🧑‍💼
+                </div>
+
+                <h3>
+                    No Staff Accounts Found
+                </h3>
+
+                <p>
+                    No Electricity Department Staff or Senior
+                    Electricity Officer accounts match the current
+                    filters.
+                </p>
+
+                <a
+                    href="{{ url_for('admin.staff_accounts') }}"
+                    class="btn btn-secondary"
+                >
+                    Clear Filters
+                </a>
+
+            </div>
+
+        {% endif %}
+
+    </section>
+
+
+    <!-- ROLE RESPONSIBILITIES -->
+
+    <section class="dashboard-grid">
+
+        <div class="dashboard-main">
+
+            <section class="dashboard-card">
+
+                <div class="card-header">
+
+                    <div>
+
+                        <span class="section-label">
+                            Role-Based Access
+                        </span>
+
+                        <h2>
+                            Staff Responsibilities
+                        </h2>
+
+                    </div>
+
+                </div>
+
+
+                <div class="information-grid">
+
+                    <div class="information-card">
+
+                        <div class="information-card-icon">
+                            🧑‍💼
+                        </div>
+
+                        <h3>
+                            Electricity Department Staff
+                        </h3>
+
+                        <p>
+                            Views assigned complaints, accepts complaints
+                            for processing, updates complaint status,
+                            adds repair notes, resolves complaints, and
+                            reviews complaint history for a specific
+                            location.
+                        </p>
+
+                    </div>
+
+
+                    <div class="information-card">
+
+                        <div class="information-card-icon">
+                            🧑‍⚖️
+                        </div>
+
+                        <h3>
+                            Senior Electricity Officer
+                        </h3>
+
+                        <p>
+                            Reviews escalated complaints, assigns
+                            escalated complaints to appropriate staff,
+                            and records the final action taken.
+                        </p>
+
+                    </div>
+
+                </div>
+
+            </section>
+
+
+            <!-- APPROVAL WORKFLOW -->
+
+            <section class="dashboard-card">
+
+                <div class="card-header">
+
+                    <div>
+
+                        <span class="section-label">
+                            Authorization Workflow
+                        </span>
+
+                        <h2>
+                            Staff Registration Process
+                        </h2>
+
+                    </div>
+
+                </div>
+
+
+                <div class="information-grid">
+
+                    <div class="information-card">
+
+                        <div class="information-card-icon">
+                            1
+                        </div>
+
+                        <h3>
+                            Registration Request
+                        </h3>
+
+                        <p>
+                            The authorized user registers by selecting
+                            the required department role.
+                        </p>
+
+                    </div>
+
+
+                    <div class="information-card">
+
+                        <div class="information-card-icon">
+                            2
+                        </div>
+
+                        <h3>
+                            Administrator Review
+                        </h3>
+
+                        <p>
+                            The registration remains restricted until
+                            the Administrator reviews the request.
+                        </p>
+
+                    </div>
+
+
+                    <div class="information-card">
+
+                        <div class="information-card-icon">
+                            3
+                        </div>
+
+                        <h3>
+                            Approval
+                        </h3>
+
+                        <p>
+                            The Administrator approves the account when
+                            the registration is authorized.
+                        </p>
+
+                    </div>
+
+
+                    <div class="information-card">
+
+                        <div class="information-card-icon">
+                            4
+                        </div>
+
+                        <h3>
+                            Dashboard Access
+                        </h3>
+
+                        <p>
+                            After approval and activation, the user can
+                            sign in and access the appropriate role
+                            dashboard.
+                        </p>
+
+                    </div>
+
+                </div>
+
+            </section>
+
+        </div>
+
+
+        <!-- SIDEBAR -->
+
+        <aside class="dashboard-sidebar">
+
+            <section class="dashboard-card">
+
+                <div class="card-header">
+
+                    <div>
+
+                        <span class="section-label">
+                            Administration
+                        </span>
+
+                        <h2>
+                            Quick Access
+                        </h2>
+
+                    </div>
+
+                </div>
+
+
+                <div class="account-actions">
+
+                    <a
+                        href="{{ url_for('admin.dashboard') }}"
+                        class="secondary-action"
+                    >
+
+                        <span>
+                            🏠
+                        </span>
+
+                        <span>
+                            Dashboard
+                        </span>
+
+                        <span>
+                            →
+                        </span>
+
+                    </a>
+
+
+                    <a
+                        href="{{ url_for('admin.users') }}"
+                        class="secondary-action"
+                    >
+
+                        <span>
+                            👥
+                        </span>
+
+                        <span>
+                            All Users
+                        </span>
+
+                        <span>
+                            →
+                        </span>
+
+                    </a>
+
+
+                    <a
+                        href="{{ url_for('admin.staff_accounts') }}"
+                        class="secondary-action"
+                    >
+
+                        <span>
+                            🧑‍💼
+                        </span>
+
+                        <span>
+                            Staff Accounts
+                        </span>
+
+                        <span>
+                            →
+                        </span>
+
+                    </a>
+
+
+                    <a
+                        href="{{ url_for('admin.reports') }}"
+                        class="secondary-action"
+                    >
+
+                        <span>
+                            📊
+                        </span>
+
+                        <span>
+                            Reports
+                        </span>
+
+                        <span>
+                            →
+                        </span>
+
+                    </a>
+
+                </div>
+
+            </section>
+
+
+            <section class="dashboard-card">
+
+                <div class="card-header">
+
+                    <div>
+
+                        <span class="section-label">
+                            Access Control
+                        </span>
+
+                        <h2>
+                            Important
+                        </h2>
+
+                    </div>
+
+                </div>
+
+                <p>
+                    Creating or activating an account does not change
+                    the user's assigned role. Staff members and Senior
+                    Officers remain restricted to their respective
+                    authorized functions.
+                </p>
+
+            </section>
+
+
+            <section class="dashboard-card">
+
+                <div class="card-header">
+
+                    <div>
+
+                        <span class="section-label">
+                            Account Status
+                        </span>
+
+                        <h2>
+                            Control Rules
+                        </h2>
+
+                    </div>
+
+                </div>
+
+
+                <div class="account-actions">
+
+                    <div class="secondary-action">
+
+                        <span>
+                            ✓
+                        </span>
+
+                        <span>
+                            Approved and active accounts can sign in.
+                        </span>
+
+                    </div>
+
+
+                    <div class="secondary-action">
+
+                        <span>
+                            ⏳
+                        </span>
+
+                        <span>
+                            Pending accounts require approval.
+                        </span>
+
+                    </div>
+
+
+                    <div class="secondary-action">
+
+                        <span>
+                            ⏸
+                        </span>
+
+                        <span>
+                            Inactive accounts cannot access the system.
+                        </span>
+
+                    </div>
+
+                </div>
+
+            </section>
+
+        </aside>
+
+    </section>
+
+</section>
+
+{% endblock %}

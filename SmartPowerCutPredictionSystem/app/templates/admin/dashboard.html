@@ -1,0 +1,1227 @@
+{% extends "base.html" %}
+
+{% block title %}
+Administrator Dashboard | Smart Power Cut Prediction System
+{% endblock %}
+
+{% block content %}
+
+<section class="dashboard-page">
+
+    <!-- PAGE HEADER -->
+
+    <div class="dashboard-header">
+
+        <div>
+
+            <span class="section-label">
+                System Administration
+            </span>
+
+            <h1>
+                Administrator Dashboard
+            </h1>
+
+            <p>
+                Manage users, staff accounts, complaint records,
+                reports, datasets, and system operations from one place.
+            </p>
+
+        </div>
+
+        <div class="dashboard-header-actions">
+
+            <a
+                href="{{ url_for('admin.dashboard') }}"
+                class="btn btn-primary"
+            >
+                ↻ Refresh
+            </a>
+
+        </div>
+
+    </div>
+
+
+    <!-- SYSTEM SUMMARY -->
+
+    <section class="dashboard-summary">
+
+        <article class="summary-card">
+
+            <div class="summary-icon">
+                👥
+            </div>
+
+            <div class="summary-content">
+
+                <span class="summary-label">
+                    Total Users
+                </span>
+
+                <strong class="summary-value">
+                    {{ total_users|default(0) }}
+                </strong>
+
+                <span class="summary-description">
+                    Registered system users
+                </span>
+
+            </div>
+
+        </article>
+
+
+        <article class="summary-card">
+
+            <div class="summary-icon">
+                🧑‍💼
+            </div>
+
+            <div class="summary-content">
+
+                <span class="summary-label">
+                    Staff Accounts
+                </span>
+
+                <strong class="summary-value">
+                    {{ total_staff|default(0) }}
+                </strong>
+
+                <span class="summary-description">
+                    Electricity department staff
+                </span>
+
+            </div>
+
+        </article>
+
+
+        <article class="summary-card">
+
+            <div class="summary-icon">
+                ⚡
+            </div>
+
+            <div class="summary-content">
+
+                <span class="summary-label">
+                    Total Complaints
+                </span>
+
+                <strong class="summary-value">
+                    {{ total_complaints|default(0) }}
+                </strong>
+
+                <span class="summary-description">
+                    Complaint records in the system
+                </span>
+
+            </div>
+
+        </article>
+
+
+        <article class="summary-card">
+
+            <div class="summary-icon">
+                ↑
+            </div>
+
+            <div class="summary-content">
+
+                <span class="summary-label">
+                    Escalated
+                </span>
+
+                <strong class="summary-value">
+                    {{ escalated_complaints|default(0) }}
+                </strong>
+
+                <span class="summary-description">
+                    Complaints requiring officer review
+                </span>
+
+            </div>
+
+        </article>
+
+    </section>
+
+
+    <!-- ADMIN QUICK ACTIONS -->
+
+    <section class="dashboard-card">
+
+        <div class="card-header">
+
+            <div>
+
+                <span class="section-label">
+                    Administration
+                </span>
+
+                <h2>
+                    Quick Actions
+                </h2>
+
+            </div>
+
+        </div>
+
+
+        <div class="information-grid">
+
+            <a
+                href="{{ url_for('admin.users') }}"
+                class="information-card"
+            >
+
+                <div class="information-card-icon">
+                    👥
+                </div>
+
+                <h3>
+                    Manage Users
+                </h3>
+
+                <p>
+                    View registered users and activate or deactivate
+                    user accounts.
+                </p>
+
+                <span class="table-action">
+                    Open User Management →
+                </span>
+
+            </a>
+
+
+            <a
+                href="{{ url_for('admin.staff_accounts') }}"
+                class="information-card"
+            >
+
+                <div class="information-card-icon">
+                    🧑‍💼
+                </div>
+
+                <h3>
+                    Staff Accounts
+                </h3>
+
+                <p>
+                    Create and manage Electricity Department Staff
+                    and Senior Electricity Officer accounts.
+                </p>
+
+                <span class="table-action">
+                    Manage Staff →
+                </span>
+
+            </a>
+
+
+            <a
+                href="{{ url_for('admin.reports') }}"
+                class="information-card"
+            >
+
+                <div class="information-card-icon">
+                    📊
+                </div>
+
+                <h3>
+                    System Reports
+                </h3>
+
+                <p>
+                    Review complaint statistics and system activity
+                    and export complaint reports.
+                </p>
+
+                <span class="table-action">
+                    View Reports →
+                </span>
+
+            </a>
+
+
+            <a
+                href="{{ url_for('admin.upload_dataset') }}"
+                class="information-card"
+            >
+
+                <div class="information-card-icon">
+                    ↑
+                </div>
+
+                <h3>
+                    Upload Dataset
+                </h3>
+
+                <p>
+                    Upload sample complaint records for dataset
+                    creation, testing, and model training.
+                </p>
+
+                <span class="table-action">
+                    Upload Records →
+                </span>
+
+            </a>
+
+        </div>
+
+    </section>
+
+
+    <!-- SYSTEM OPERATIONS -->
+
+    <section class="dashboard-grid">
+
+        <div class="dashboard-main">
+
+
+            <!-- USER MANAGEMENT -->
+
+            <section class="dashboard-card">
+
+                <div class="card-header">
+
+                    <div>
+
+                        <span class="section-label">
+                            Account Management
+                        </span>
+
+                        <h2>
+                            User Account Overview
+                        </h2>
+
+                    </div>
+
+                    <a
+                        href="{{ url_for('admin.users') }}"
+                        class="btn btn-secondary"
+                    >
+                        View Users
+                    </a>
+
+                </div>
+
+
+                <div class="details-grid">
+
+                    <div class="detail-item">
+
+                        <span class="detail-label">
+                            Total Users
+                        </span>
+
+                        <strong>
+                            {{ total_users|default(0) }}
+                        </strong>
+
+                    </div>
+
+
+                    <div class="detail-item">
+
+                        <span class="detail-label">
+                            Active Users
+                        </span>
+
+                        <strong>
+                            {{ active_users|default(0) }}
+                        </strong>
+
+                    </div>
+
+
+                    <div class="detail-item">
+
+                        <span class="detail-label">
+                            Inactive Users
+                        </span>
+
+                        <strong>
+                            {{ inactive_users|default(0) }}
+                        </strong>
+
+                    </div>
+
+
+                    <div class="detail-item">
+
+                        <span class="detail-label">
+                            Pending Approvals
+                        </span>
+
+                        <strong>
+                            {{ pending_users|default(0) }}
+                        </strong>
+
+                    </div>
+
+                </div>
+
+
+                <div class="information-note">
+
+                    <span>
+                        i
+                    </span>
+
+                    <p>
+                        Residents can register directly as public users.
+                        Electricity Department Staff and Senior
+                        Electricity Officers require Administrator
+                        approval before they can access their respective
+                        dashboards.
+                    </p>
+
+                </div>
+
+            </section>
+
+
+            <!-- STAFF MANAGEMENT -->
+
+            <section class="dashboard-card">
+
+                <div class="card-header">
+
+                    <div>
+
+                        <span class="section-label">
+                            Department Accounts
+                        </span>
+
+                        <h2>
+                            Staff Account Overview
+                        </h2>
+
+                    </div>
+
+                    <a
+                        href="{{ url_for('admin.staff_accounts') }}"
+                        class="btn btn-secondary"
+                    >
+                        Manage Staff
+                    </a>
+
+                </div>
+
+
+                <div class="details-grid">
+
+                    <div class="detail-item">
+
+                        <span class="detail-label">
+                            Department Staff
+                        </span>
+
+                        <strong>
+                            {{ electricity_staff_count|default(0) }}
+                        </strong>
+
+                    </div>
+
+
+                    <div class="detail-item">
+
+                        <span class="detail-label">
+                            Senior Officers
+                        </span>
+
+                        <strong>
+                            {{ senior_officer_count|default(0) }}
+                        </strong>
+
+                    </div>
+
+
+                    <div class="detail-item">
+
+                        <span class="detail-label">
+                            Active Staff
+                        </span>
+
+                        <strong>
+                            {{ active_staff_count|default(0) }}
+                        </strong>
+
+                    </div>
+
+
+                    <div class="detail-item">
+
+                        <span class="detail-label">
+                            Inactive Staff
+                        </span>
+
+                        <strong>
+                            {{ inactive_staff_count|default(0) }}
+                        </strong>
+
+                    </div>
+
+                </div>
+
+
+                <div class="information-note">
+
+                    <span>
+                        !
+                    </span>
+
+                    <p>
+                        Staff accounts are controlled by the
+                        Administrator. Account activation determines
+                        whether an authorized staff member can sign in
+                        and access the assigned role dashboard.
+                    </p>
+
+                </div>
+
+            </section>
+
+
+            <!-- COMPLAINT OVERVIEW -->
+
+            <section class="dashboard-card">
+
+                <div class="card-header">
+
+                    <div>
+
+                        <span class="section-label">
+                            Complaint Management
+                        </span>
+
+                        <h2>
+                            Complaint Overview
+                        </h2>
+
+                    </div>
+
+                    <a
+                        href="{{ url_for('admin.reports') }}"
+                        class="btn btn-secondary"
+                    >
+                        Reports
+                    </a>
+
+                </div>
+
+
+                <div class="details-grid">
+
+                    <div class="detail-item">
+
+                        <span class="detail-label">
+                            Total Complaints
+                        </span>
+
+                        <strong>
+                            {{ total_complaints|default(0) }}
+                        </strong>
+
+                    </div>
+
+
+                    <div class="detail-item">
+
+                        <span class="detail-label">
+                            Pending
+                        </span>
+
+                        <strong>
+                            {{ pending_complaints|default(0) }}
+                        </strong>
+
+                    </div>
+
+
+                    <div class="detail-item">
+
+                        <span class="detail-label">
+                            In Progress
+                        </span>
+
+                        <strong>
+                            {{ in_progress_complaints|default(0) }}
+                        </strong>
+
+                    </div>
+
+
+                    <div class="detail-item">
+
+                        <span class="detail-label">
+                            Resolved
+                        </span>
+
+                        <strong>
+                            {{ resolved_complaints|default(0) }}
+                        </strong>
+
+                    </div>
+
+
+                    <div class="detail-item">
+
+                        <span class="detail-label">
+                            Escalated
+                        </span>
+
+                        <strong>
+                            {{ escalated_complaints|default(0) }}
+                        </strong>
+
+                    </div>
+
+
+                    <div class="detail-item">
+
+                        <span class="detail-label">
+                            Withdrawn
+                        </span>
+
+                        <strong>
+                            {{ withdrawn_complaints|default(0) }}
+                        </strong>
+
+                    </div>
+
+                </div>
+
+            </section>
+
+
+            <!-- COMPLAINT TYPES -->
+
+            <section class="dashboard-card">
+
+                <div class="card-header">
+
+                    <div>
+
+                        <span class="section-label">
+                            Complaint Categories
+                        </span>
+
+                        <h2>
+                            Complaint Type Distribution
+                        </h2>
+
+                    </div>
+
+                </div>
+
+
+                <div class="details-grid">
+
+                    <div class="detail-item">
+
+                        <span class="detail-label">
+                            Power Cut
+                        </span>
+
+                        <strong>
+                            {{ power_cut_count|default(0) }}
+                        </strong>
+
+                    </div>
+
+
+                    <div class="detail-item">
+
+                        <span class="detail-label">
+                            Streetlight
+                        </span>
+
+                        <strong>
+                            {{ streetlight_count|default(0) }}
+                        </strong>
+
+                    </div>
+
+
+                    <div class="detail-item">
+
+                        <span class="detail-label">
+                            Pole Damage
+                        </span>
+
+                        <strong>
+                            {{ pole_damage_count|default(0) }}
+                        </strong>
+
+                    </div>
+
+
+                    <div class="detail-item">
+
+                        <span class="detail-label">
+                            Voltage Issue
+                        </span>
+
+                        <strong>
+                            {{ voltage_issue_count|default(0) }}
+                        </strong>
+
+                    </div>
+
+                </div>
+
+            </section>
+
+
+            <!-- DATASET / MODEL -->
+
+            <section class="dashboard-card">
+
+                <div class="card-header">
+
+                    <div>
+
+                        <span class="section-label">
+                            Prediction Data
+                        </span>
+
+                        <h2>
+                            Dataset and Model Status
+                        </h2>
+
+                    </div>
+
+                    <a
+                        href="{{ url_for('admin.upload_dataset') }}"
+                        class="btn btn-secondary"
+                    >
+                        Upload Dataset
+                    </a>
+
+                </div>
+
+
+                <div class="details-grid">
+
+                    <div class="detail-item">
+
+                        <span class="detail-label">
+                            Dataset Records
+                        </span>
+
+                        <strong>
+                            {{ dataset_records|default(0) }}
+                        </strong>
+
+                    </div>
+
+
+                    <div class="detail-item">
+
+                        <span class="detail-label">
+                            Resident Complaint Records
+                        </span>
+
+                        <strong>
+                            {{ resident_dataset_records|default(0) }}
+                        </strong>
+
+                    </div>
+
+
+                    <div class="detail-item">
+
+                        <span class="detail-label">
+                            Training Records
+                        </span>
+
+                        <strong>
+                            {{ training_records|default(0) }}
+                        </strong>
+
+                    </div>
+
+
+                    <div class="detail-item">
+
+                        <span class="detail-label">
+                            Testing Records
+                        </span>
+
+                        <strong>
+                            {{ testing_records|default(0) }}
+                        </strong>
+
+                    </div>
+
+
+                    <div class="detail-item">
+
+                        <span class="detail-label">
+                            Model Status
+                        </span>
+
+                        <strong>
+                            {{ model_status|default('Not Available') }}
+                        </strong>
+
+                    </div>
+
+
+                    <div class="detail-item">
+
+                        <span class="detail-label">
+                            Model Accuracy
+                        </span>
+
+                        <strong>
+                            {% if model_accuracy is defined and model_accuracy is not none %}
+                                {{ model_accuracy }}%
+                            {% else %}
+                                —
+                            {% endif %}
+                        </strong>
+
+                    </div>
+
+                </div>
+
+
+                <div class="information-note">
+
+                    <span>
+                        i
+                    </span>
+
+                    <p>
+                        Sample complaint records uploaded by the
+                        Administrator and complaint records submitted by
+                        residents can contribute to the complaint
+                        dataset. The prediction process separates
+                        available data into training and testing records
+                        before evaluating the Random Forest model.
+                    </p>
+
+                </div>
+
+            </section>
+
+        </div>
+
+
+        <!-- SIDEBAR -->
+
+        <aside class="dashboard-sidebar">
+
+
+            <!-- ADMIN NAVIGATION -->
+
+            <section class="dashboard-card">
+
+                <div class="card-header">
+
+                    <div>
+
+                        <span class="section-label">
+                            Administrator
+                        </span>
+
+                        <h2>
+                            Quick Navigation
+                        </h2>
+
+                    </div>
+
+                </div>
+
+
+                <div class="account-actions">
+
+                    <a
+                        href="{{ url_for('admin.dashboard') }}"
+                        class="secondary-action"
+                    >
+
+                        <span>
+                            🏠
+                        </span>
+
+                        <span>
+                            Dashboard
+                        </span>
+
+                        <span>
+                            →
+                        </span>
+
+                    </a>
+
+
+                    <a
+                        href="{{ url_for('admin.users') }}"
+                        class="secondary-action"
+                    >
+
+                        <span>
+                            👥
+                        </span>
+
+                        <span>
+                            Users
+                        </span>
+
+                        <span>
+                            →
+                        </span>
+
+                    </a>
+
+
+                    <a
+                        href="{{ url_for('admin.staff_accounts') }}"
+                        class="secondary-action"
+                    >
+
+                        <span>
+                            🧑‍💼
+                        </span>
+
+                        <span>
+                            Staff Accounts
+                        </span>
+
+                        <span>
+                            →
+                        </span>
+
+                    </a>
+
+
+                    <a
+                        href="{{ url_for('admin.reports') }}"
+                        class="secondary-action"
+                    >
+
+                        <span>
+                            📊
+                        </span>
+
+                        <span>
+                            Reports
+                        </span>
+
+                        <span>
+                            →
+                        </span>
+
+                    </a>
+
+
+                    <a
+                        href="{{ url_for('admin.upload_dataset') }}"
+                        class="secondary-action"
+                    >
+
+                        <span>
+                            ↑
+                        </span>
+
+                        <span>
+                            Upload Dataset
+                        </span>
+
+                        <span>
+                            →
+                        </span>
+
+                    </a>
+
+                </div>
+
+            </section>
+
+
+            <!-- ACCOUNT APPROVAL -->
+
+            <section class="dashboard-card">
+
+                <div class="card-header">
+
+                    <div>
+
+                        <span class="section-label">
+                            Authorization
+                        </span>
+
+                        <h2>
+                            Pending Approval
+                        </h2>
+
+                    </div>
+
+                </div>
+
+
+                <div class="metric-highlight">
+
+                    <strong>
+                        {{ pending_users|default(0) }}
+                    </strong>
+
+                    <span>
+                        Account request{% if pending_users|default(0) != 1 %}s{% endif %}
+                    </span>
+
+                </div>
+
+
+                <p>
+                    Review authorized Electricity Department Staff and
+                    Senior Electricity Officer registration requests
+                    before dashboard access is permitted.
+                </p>
+
+
+                <a
+                    href="{{ url_for('admin.users') }}"
+                    class="btn btn-primary btn-block"
+                >
+                    Review Accounts
+                </a>
+
+            </section>
+
+
+            <!-- SYSTEM CONTROLS -->
+
+            <section class="dashboard-card">
+
+                <div class="card-header">
+
+                    <div>
+
+                        <span class="section-label">
+                            System Controls
+                        </span>
+
+                        <h2>
+                            Administrative Responsibilities
+                        </h2>
+
+                    </div>
+
+                </div>
+
+
+                <div class="account-actions">
+
+                    <div class="secondary-action">
+
+                        <span>
+                            ✓
+                        </span>
+
+                        <span>
+                            Manage user accounts
+                        </span>
+
+                    </div>
+
+
+                    <div class="secondary-action">
+
+                        <span>
+                            ✓
+                        </span>
+
+                        <span>
+                            Create staff accounts
+                        </span>
+
+                    </div>
+
+
+                    <div class="secondary-action">
+
+                        <span>
+                            ✓
+                        </span>
+
+                        <span>
+                            Activate or deactivate accounts
+                        </span>
+
+                    </div>
+
+
+                    <div class="secondary-action">
+
+                        <span>
+                            ✓
+                        </span>
+
+                        <span>
+                            Review system reports
+                        </span>
+
+                    </div>
+
+
+                    <div class="secondary-action">
+
+                        <span>
+                            ✓
+                        </span>
+
+                        <span>
+                            Manage complaint datasets
+                        </span>
+
+                    </div>
+
+                </div>
+
+            </section>
+
+
+            <!-- SYSTEM INFORMATION -->
+
+            <section class="dashboard-card">
+
+                <div class="card-header">
+
+                    <div>
+
+                        <span class="section-label">
+                            System Information
+                        </span>
+
+                        <h2>
+                            Smart Power Cut Prediction
+                        </h2>
+
+                    </div>
+
+                </div>
+
+                <p>
+                    The system maintains resident complaints,
+                    processing records, notifications, escalation
+                    information, and prediction-related data in the
+                    application database.
+                </p>
+
+            </section>
+
+        </aside>
+
+    </section>
+
+
+    <!-- ADMIN RESPONSIBILITY -->
+
+    <section class="dashboard-card">
+
+        <div class="card-header">
+
+            <div>
+
+                <span class="section-label">
+                    Administration Workflow
+                </span>
+
+                <h2>
+                    Core Administrative Functions
+                </h2>
+
+            </div>
+
+        </div>
+
+
+        <div class="information-grid">
+
+            <div class="information-card">
+
+                <div class="information-card-icon">
+                    1
+                </div>
+
+                <h3>
+                    Manage Accounts
+                </h3>
+
+                <p>
+                    Control account activation and deactivation and
+                    maintain authorized system access.
+                </p>
+
+            </div>
+
+
+            <div class="information-card">
+
+                <div class="information-card-icon">
+                    2
+                </div>
+
+                <h3>
+                    Create Staff
+                </h3>
+
+                <p>
+                    Create Electricity Department Staff and Senior
+                    Electricity Officer accounts when required.
+                </p>
+
+            </div>
+
+
+            <div class="information-card">
+
+                <div class="information-card-icon">
+                    3
+                </div>
+
+                <h3>
+                    Monitor Reports
+                </h3>
+
+                <p>
+                    Review complaint activity and export complaint
+                    reports for administrative use.
+                </p>
+
+            </div>
+
+
+            <div class="information-card">
+
+                <div class="information-card-icon">
+                    4
+                </div>
+
+                <h3>
+                    Maintain Dataset
+                </h3>
+
+                <p>
+                    Upload sample complaint records that can be included
+                    in the prediction dataset and model workflow.
+                </p>
+
+            </div>
+
+        </div>
+
+    </section>
+
+</section>
+
+{% endblock %}

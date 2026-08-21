@@ -1,0 +1,1663 @@
+{% extends "base.html" %}
+
+{% block title %}
+System Reports | Smart Power Cut Prediction System
+{% endblock %}
+
+{% block content %}
+
+<section class="dashboard-page">
+
+    <!-- PAGE HEADER -->
+
+    <div class="dashboard-header">
+
+        <div>
+
+            <span class="section-label">
+                System Administration
+            </span>
+
+            <h1>
+                System Reports
+            </h1>
+
+            <p>
+                Review complaint activity, resolution performance,
+                escalation records, complaint categories, and prediction
+                system information.
+            </p>
+
+        </div>
+
+        <div class="dashboard-header-actions">
+
+            <a
+                href="{{ url_for('admin.dashboard') }}"
+                class="btn btn-secondary"
+            >
+                ← Dashboard
+            </a>
+
+            <a
+                href="{{ url_for('admin.reports') }}"
+                class="btn btn-primary"
+            >
+                ↻ Refresh
+            </a>
+
+        </div>
+
+    </div>
+
+
+    <!-- REPORT FILTER -->
+
+    <section class="dashboard-card">
+
+        <div class="card-header">
+
+            <div>
+
+                <span class="section-label">
+                    Report Period
+                </span>
+
+                <h2>
+                    Filter Report Data
+                </h2>
+
+            </div>
+
+        </div>
+
+
+        <form
+            method="GET"
+            action="{{ url_for('admin.reports') }}"
+            class="auth-form"
+        >
+
+            <div class="form-row">
+
+                <div class="form-group">
+
+                    <label for="start_date">
+                        From Date
+                    </label>
+
+                    <input
+                        type="date"
+                        id="start_date"
+                        name="start_date"
+                        value="{{ request.args.get('start_date', '') }}"
+                    >
+
+                </div>
+
+
+                <div class="form-group">
+
+                    <label for="end_date">
+                        To Date
+                    </label>
+
+                    <input
+                        type="date"
+                        id="end_date"
+                        name="end_date"
+                        value="{{ request.args.get('end_date', '') }}"
+                    >
+
+                </div>
+
+
+                <div class="form-group">
+
+                    <label for="complaint_type">
+                        Complaint Type
+                    </label>
+
+                    <select
+                        id="complaint_type"
+                        name="complaint_type"
+                    >
+
+                        <option value="">
+                            All Complaint Types
+                        </option>
+
+                        <option
+                            value="power_cut"
+                            {% if request.args.get('complaint_type') == 'power_cut' %}selected{% endif %}
+                        >
+                            Power Cut
+                        </option>
+
+                        <option
+                            value="streetlight"
+                            {% if request.args.get('complaint_type') == 'streetlight' %}selected{% endif %}
+                        >
+                            Streetlight
+                        </option>
+
+                        <option
+                            value="pole_damage"
+                            {% if request.args.get('complaint_type') == 'pole_damage' %}selected{% endif %}
+                        >
+                            Electric Pole Damage
+                        </option>
+
+                        <option
+                            value="voltage_issue"
+                            {% if request.args.get('complaint_type') == 'voltage_issue' %}selected{% endif %}
+                        >
+                            Voltage Issue
+                        </option>
+
+                    </select>
+
+                </div>
+
+
+                <div class="form-group">
+
+                    <label for="status">
+                        Status
+                    </label>
+
+                    <select
+                        id="status"
+                        name="status"
+                    >
+
+                        <option value="">
+                            All Statuses
+                        </option>
+
+                        <option
+                            value="pending"
+                            {% if request.args.get('status') == 'pending' %}selected{% endif %}
+                        >
+                            Pending
+                        </option>
+
+                        <option
+                            value="assigned"
+                            {% if request.args.get('status') == 'assigned' %}selected{% endif %}
+                        >
+                            Assigned
+                        </option>
+
+                        <option
+                            value="in_progress"
+                            {% if request.args.get('status') == 'in_progress' %}selected{% endif %}
+                        >
+                            In Progress
+                        </option>
+
+                        <option
+                            value="resolved"
+                            {% if request.args.get('status') == 'resolved' %}selected{% endif %}
+                        >
+                            Resolved
+                        </option>
+
+                        <option
+                            value="escalated"
+                            {% if request.args.get('status') == 'escalated' %}selected{% endif %}
+                        >
+                            Escalated
+                        </option>
+
+                        <option
+                            value="withdrawn"
+                            {% if request.args.get('status') == 'withdrawn' %}selected{% endif %}
+                        >
+                            Withdrawn
+                        </option>
+
+                    </select>
+
+                </div>
+
+            </div>
+
+
+            <div class="form-actions">
+
+                <button
+                    type="submit"
+                    class="btn btn-primary"
+                >
+                    Apply Filters
+                </button>
+
+                <a
+                    href="{{ url_for('admin.reports') }}"
+                    class="btn btn-secondary"
+                >
+                    Clear Filters
+                </a>
+
+            </div>
+
+        </form>
+
+    </section>
+
+
+    <!-- COMPLAINT SUMMARY -->
+
+    <section class="dashboard-summary">
+
+        <article class="summary-card">
+
+            <div class="summary-icon">
+                ⚡
+            </div>
+
+            <div class="summary-content">
+
+                <span class="summary-label">
+                    Total Complaints
+                </span>
+
+                <strong class="summary-value">
+                    {{ total_complaints|default(0) }}
+                </strong>
+
+                <span class="summary-description">
+                    Complaint records
+                </span>
+
+            </div>
+
+        </article>
+
+
+        <article class="summary-card">
+
+            <div class="summary-icon">
+                ⏳
+            </div>
+
+            <div class="summary-content">
+
+                <span class="summary-label">
+                    Pending
+                </span>
+
+                <strong class="summary-value">
+                    {{ pending_complaints|default(0) }}
+                </strong>
+
+                <span class="summary-description">
+                    Awaiting processing
+                </span>
+
+            </div>
+
+        </article>
+
+
+        <article class="summary-card">
+
+            <div class="summary-icon">
+                🔧
+            </div>
+
+            <div class="summary-content">
+
+                <span class="summary-label">
+                    In Progress
+                </span>
+
+                <strong class="summary-value">
+                    {{ in_progress_complaints|default(0) }}
+                </strong>
+
+                <span class="summary-description">
+                    Currently being processed
+                </span>
+
+            </div>
+
+        </article>
+
+
+        <article class="summary-card">
+
+            <div class="summary-icon">
+                ✓
+            </div>
+
+            <div class="summary-content">
+
+                <span class="summary-label">
+                    Resolved
+                </span>
+
+                <strong class="summary-value">
+                    {{ resolved_complaints|default(0) }}
+                </strong>
+
+                <span class="summary-description">
+                    Successfully resolved
+                </span>
+
+            </div>
+
+        </article>
+
+
+        <article class="summary-card">
+
+            <div class="summary-icon">
+                ↑
+            </div>
+
+            <div class="summary-content">
+
+                <span class="summary-label">
+                    Escalated
+                </span>
+
+                <strong class="summary-value">
+                    {{ escalated_complaints|default(0) }}
+                </strong>
+
+                <span class="summary-description">
+                    Requiring officer action
+                </span>
+
+            </div>
+
+        </article>
+
+
+        <article class="summary-card">
+
+            <div class="summary-icon">
+                ↩
+            </div>
+
+            <div class="summary-content">
+
+                <span class="summary-label">
+                    Withdrawn
+                </span>
+
+                <strong class="summary-value">
+                    {{ withdrawn_complaints|default(0) }}
+                </strong>
+
+                <span class="summary-description">
+                    Withdrawn before assignment
+                </span>
+
+            </div>
+
+        </article>
+
+    </section>
+
+
+    <!-- COMPLAINT TYPE REPORT -->
+
+    <section class="dashboard-card">
+
+        <div class="card-header">
+
+            <div>
+
+                <span class="section-label">
+                    Complaint Analysis
+                </span>
+
+                <h2>
+                    Complaint Type Summary
+                </h2>
+
+            </div>
+
+        </div>
+
+
+        <div class="details-grid">
+
+            <div class="detail-item">
+
+                <span class="detail-label">
+                    Power Cut
+                </span>
+
+                <strong>
+                    {{ power_cut_count|default(0) }}
+                </strong>
+
+            </div>
+
+
+            <div class="detail-item">
+
+                <span class="detail-label">
+                    Streetlight
+                </span>
+
+                <strong>
+                    {{ streetlight_count|default(0) }}
+                </strong>
+
+            </div>
+
+
+            <div class="detail-item">
+
+                <span class="detail-label">
+                    Electric Pole Damage
+                </span>
+
+                <strong>
+                    {{ pole_damage_count|default(0) }}
+                </strong>
+
+            </div>
+
+
+            <div class="detail-item">
+
+                <span class="detail-label">
+                    Voltage Issue
+                </span>
+
+                <strong>
+                    {{ voltage_issue_count|default(0) }}
+                </strong>
+
+            </div>
+
+        </div>
+
+    </section>
+
+
+    <!-- PRIORITY REPORT -->
+
+    <section class="dashboard-card">
+
+        <div class="card-header">
+
+            <div>
+
+                <span class="section-label">
+                    Priority Analysis
+                </span>
+
+                <h2>
+                    Complaint Priority Distribution
+                </h2>
+
+            </div>
+
+        </div>
+
+
+        <div class="details-grid">
+
+            <div class="detail-item">
+
+                <span class="detail-label">
+                    High Priority
+                </span>
+
+                <strong>
+                    {{ high_priority_count|default(0) }}
+                </strong>
+
+            </div>
+
+
+            <div class="detail-item">
+
+                <span class="detail-label">
+                    Medium Priority
+                </span>
+
+                <strong>
+                    {{ medium_priority_count|default(0) }}
+                </strong>
+
+            </div>
+
+
+            <div class="detail-item">
+
+                <span class="detail-label">
+                    Low Priority
+                </span>
+
+                <strong>
+                    {{ low_priority_count|default(0) }}
+                </strong>
+
+            </div>
+
+        </div>
+
+
+        <div class="information-note">
+
+            <span>
+                i
+            </span>
+
+            <p>
+                Complaint priority is assigned using the system's
+                rule-based priority logic and is used to support
+                complaint processing and operational handling.
+            </p>
+
+        </div>
+
+    </section>
+
+
+    <!-- RESOLUTION REPORT -->
+
+    <section class="dashboard-grid">
+
+        <div class="dashboard-main">
+
+            <section class="dashboard-card">
+
+                <div class="card-header">
+
+                    <div>
+
+                        <span class="section-label">
+                            Resolution Performance
+                        </span>
+
+                        <h2>
+                            Resolution Summary
+                        </h2>
+
+                    </div>
+
+                </div>
+
+
+                <div class="details-grid">
+
+                    <div class="detail-item">
+
+                        <span class="detail-label">
+                            24-Hour Preference
+                        </span>
+
+                        <strong>
+                            {{ resolution_24_count|default(0) }}
+                        </strong>
+
+                    </div>
+
+
+                    <div class="detail-item">
+
+                        <span class="detail-label">
+                            48-Hour Preference
+                        </span>
+
+                        <strong>
+                            {{ resolution_48_count|default(0) }}
+                        </strong>
+
+                    </div>
+
+
+                    <div class="detail-item">
+
+                        <span class="detail-label">
+                            Resolved Within Preference
+                        </span>
+
+                        <strong>
+                            {{ resolved_within_preference|default(0) }}
+                        </strong>
+
+                    </div>
+
+
+                    <div class="detail-item">
+
+                        <span class="detail-label">
+                            Resolution Deadline Passed
+                        </span>
+
+                        <strong>
+                            {{ deadline_expired_count|default(0) }}
+                        </strong>
+
+                    </div>
+
+                </div>
+
+            </section>
+
+
+            <!-- ESCALATION REPORT -->
+
+            <section class="dashboard-card">
+
+                <div class="card-header">
+
+                    <div>
+
+                        <span class="section-label">
+                            Escalation Monitoring
+                        </span>
+
+                        <h2>
+                            Escalated Complaint Summary
+                        </h2>
+
+                    </div>
+
+                </div>
+
+
+                <div class="details-grid">
+
+                    <div class="detail-item">
+
+                        <span class="detail-label">
+                            Total Escalated
+                        </span>
+
+                        <strong>
+                            {{ escalated_complaints|default(0) }}
+                        </strong>
+
+                    </div>
+
+
+                    <div class="detail-item">
+
+                        <span class="detail-label">
+                            Awaiting Officer Review
+                        </span>
+
+                        <strong>
+                            {{ escalated_pending_count|default(0) }}
+                        </strong>
+
+                    </div>
+
+
+                    <div class="detail-item">
+
+                        <span class="detail-label">
+                            Reassigned
+                        </span>
+
+                        <strong>
+                            {{ escalated_reassigned_count|default(0) }}
+                        </strong>
+
+                    </div>
+
+
+                    <div class="detail-item">
+
+                        <span class="detail-label">
+                            Final Action Recorded
+                        </span>
+
+                        <strong>
+                            {{ final_action_count|default(0) }}
+                        </strong>
+
+                    </div>
+
+                </div>
+
+
+                <div class="information-note">
+
+                    <span>
+                        !
+                    </span>
+
+                    <p>
+                        Unresolved complaints can be automatically
+                        escalated after the resident-selected 24-hour
+                        or 48-hour resolution period expires.
+                    </p>
+
+                </div>
+
+            </section>
+
+
+            <!-- LOCATION REPORT -->
+
+            <section class="dashboard-card">
+
+                <div class="card-header">
+
+                    <div>
+
+                        <span class="section-label">
+                            Location Analysis
+                        </span>
+
+                        <h2>
+                            Complaint Location Summary
+                        </h2>
+
+                    </div>
+
+                </div>
+
+
+                {% if location_reports|default([]) %}
+
+                    <div class="complaint-table-wrapper">
+
+                        <table class="data-table">
+
+                            <thead>
+
+                                <tr>
+
+                                    <th>
+                                        Location
+                                    </th>
+
+                                    <th>
+                                        Total Complaints
+                                    </th>
+
+                                    <th>
+                                        Pending
+                                    </th>
+
+                                    <th>
+                                        Resolved
+                                    </th>
+
+                                    <th>
+                                        Escalated
+                                    </th>
+
+                                </tr>
+
+                            </thead>
+
+
+                            <tbody>
+
+                                {% for location in location_reports %}
+
+                                    <tr>
+
+                                        <td>
+                                            <strong>
+                                                {{ location.location|default('Unknown') }}
+                                            </strong>
+                                        </td>
+
+                                        <td>
+                                            {{ location.total|default(0) }}
+                                        </td>
+
+                                        <td>
+                                            {{ location.pending|default(0) }}
+                                        </td>
+
+                                        <td>
+                                            {{ location.resolved|default(0) }}
+                                        </td>
+
+                                        <td>
+                                            {{ location.escalated|default(0) }}
+                                        </td>
+
+                                    </tr>
+
+                                {% endfor %}
+
+                            </tbody>
+
+                        </table>
+
+                    </div>
+
+                {% else %}
+
+                    <div class="empty-state">
+
+                        <div class="empty-state-icon">
+                            📍
+                        </div>
+
+                        <h3>
+                            No Location Data
+                        </h3>
+
+                        <p>
+                            Location-based complaint information is not
+                            available for the selected report period.
+                        </p>
+
+                    </div>
+
+                {% endif %}
+
+            </section>
+
+
+            <!-- PREDICTION SYSTEM REPORT -->
+
+            <section class="dashboard-card">
+
+                <div class="card-header">
+
+                    <div>
+
+                        <span class="section-label">
+                            Prediction System
+                        </span>
+
+                        <h2>
+                            Dataset and Random Forest Model
+                        </h2>
+
+                    </div>
+
+                    <a
+                        href="{{ url_for('admin.upload_dataset') }}"
+                        class="btn btn-secondary"
+                    >
+                        Upload Dataset
+                    </a>
+
+                </div>
+
+
+                <div class="details-grid">
+
+                    <div class="detail-item">
+
+                        <span class="detail-label">
+                            Total Dataset Records
+                        </span>
+
+                        <strong>
+                            {{ dataset_records|default(0) }}
+                        </strong>
+
+                    </div>
+
+
+                    <div class="detail-item">
+
+                        <span class="detail-label">
+                            Sample Records
+                        </span>
+
+                        <strong>
+                            {{ sample_dataset_records|default(0) }}
+                        </strong>
+
+                    </div>
+
+
+                    <div class="detail-item">
+
+                        <span class="detail-label">
+                            Resident Complaint Records
+                        </span>
+
+                        <strong>
+                            {{ resident_dataset_records|default(0) }}
+                        </strong>
+
+                    </div>
+
+
+                    <div class="detail-item">
+
+                        <span class="detail-label">
+                            Training Records
+                        </span>
+
+                        <strong>
+                            {{ training_records|default(0) }}
+                        </strong>
+
+                    </div>
+
+
+                    <div class="detail-item">
+
+                        <span class="detail-label">
+                            Testing Records
+                        </span>
+
+                        <strong>
+                            {{ testing_records|default(0) }}
+                        </strong>
+
+                    </div>
+
+
+                    <div class="detail-item">
+
+                        <span class="detail-label">
+                            Model Status
+                        </span>
+
+                        <strong>
+                            {{ model_status|default('Not Available') }}
+                        </strong>
+
+                    </div>
+
+
+                    <div class="detail-item">
+
+                        <span class="detail-label">
+                            Model Accuracy
+                        </span>
+
+                        <strong>
+
+                            {% if model_accuracy is defined and model_accuracy is not none %}
+
+                                {{ model_accuracy }}%
+
+                            {% else %}
+
+                                —
+
+                            {% endif %}
+
+                        </strong>
+
+                    </div>
+
+
+                    <div class="detail-item">
+
+                        <span class="detail-label">
+                            Stored Predictions
+                        </span>
+
+                        <strong>
+                            {{ prediction_count|default(0) }}
+                        </strong>
+
+                    </div>
+
+                </div>
+
+
+                <div class="information-note">
+
+                    <span>
+                        i
+                    </span>
+
+                    <p>
+                        The complaint dataset can contain sample records
+                        uploaded by the Administrator together with
+                        complaint records submitted by residents. The
+                        prediction workflow separates available records
+                        into training and testing data before evaluating
+                        the Random Forest prediction model.
+                    </p>
+
+                </div>
+
+            </section>
+
+
+            <!-- REPORT RECORDS -->
+
+            <section class="dashboard-card">
+
+                <div class="card-header">
+
+                    <div>
+
+                        <span class="section-label">
+                            Complaint Records
+                        </span>
+
+                        <h2>
+                            Report Details
+                        </h2>
+
+                    </div>
+
+                    <span class="record-count">
+                        {{ report_rows|default([])|length }}
+                        record{% if report_rows|default([])|length != 1 %}s{% endif %}
+                    </span>
+
+                </div>
+
+
+                {% if report_rows|default([]) %}
+
+                    <div class="complaint-table-wrapper">
+
+                        <table class="data-table">
+
+                            <thead>
+
+                                <tr>
+
+                                    <th>
+                                        Complaint ID
+                                    </th>
+
+                                    <th>
+                                        Type
+                                    </th>
+
+                                    <th>
+                                        Location
+                                    </th>
+
+                                    <th>
+                                        Priority
+                                    </th>
+
+                                    <th>
+                                        Status
+                                    </th>
+
+                                    <th>
+                                        Submitted
+                                    </th>
+
+                                </tr>
+
+                            </thead>
+
+
+                            <tbody>
+
+                                {% for complaint in report_rows %}
+
+                                    <tr>
+
+                                        <td>
+
+                                            <strong>
+                                                #{{ complaint.id }}
+                                            </strong>
+
+                                        </td>
+
+
+                                        <td>
+
+                                            {% if complaint.complaint_type %}
+
+                                                {{ complaint.complaint_type
+                                                    |replace('_', ' ')
+                                                    |title }}
+
+                                            {% else %}
+
+                                                —
+
+                                            {% endif %}
+
+                                        </td>
+
+
+                                        <td>
+                                            {{ complaint.location|default('—') }}
+                                        </td>
+
+
+                                        <td>
+
+                                            {% if complaint.priority %}
+
+                                                <span class="status-badge">
+
+                                                    {{ complaint.priority
+                                                        |replace('_', ' ')
+                                                        |title }}
+
+                                                </span>
+
+                                            {% else %}
+
+                                                —
+
+                                            {% endif %}
+
+                                        </td>
+
+
+                                        <td>
+
+                                            {% if complaint.status %}
+
+                                                <span class="status-badge">
+
+                                                    {{ complaint.status
+                                                        |replace('_', ' ')
+                                                        |title }}
+
+                                                </span>
+
+                                            {% else %}
+
+                                                —
+
+                                            {% endif %}
+
+                                        </td>
+
+
+                                        <td>
+
+                                            {% if complaint.created_at %}
+
+                                                {% if complaint.created_at.strftime is defined %}
+
+                                                    {{ complaint.created_at.strftime(
+                                                        '%d %b %Y %H:%M'
+                                                    ) }}
+
+                                                {% else %}
+
+                                                    {{ complaint.created_at }}
+
+                                                {% endif %}
+
+                                            {% else %}
+
+                                                —
+
+                                            {% endif %}
+
+                                        </td>
+
+                                    </tr>
+
+                                {% endfor %}
+
+                            </tbody>
+
+                        </table>
+
+                    </div>
+
+                {% else %}
+
+                    <div class="empty-state">
+
+                        <div class="empty-state-icon">
+                            📊
+                        </div>
+
+                        <h3>
+                            No Report Records
+                        </h3>
+
+                        <p>
+                            No complaint records are available for the
+                            selected report criteria.
+                        </p>
+
+                    </div>
+
+                {% endif %}
+
+            </section>
+
+        </div>
+
+
+        <!-- SIDEBAR -->
+
+        <aside class="dashboard-sidebar">
+
+
+            <!-- EXPORT -->
+
+            <section class="dashboard-card">
+
+                <div class="card-header">
+
+                    <div>
+
+                        <span class="section-label">
+                            Report Output
+                        </span>
+
+                        <h2>
+                            Export Reports
+                        </h2>
+
+                    </div>
+
+                </div>
+
+
+                <p>
+                    Export the complaint report using the currently
+                    selected filters.
+                </p>
+
+
+                <form
+                    method="GET"
+                    action="{{ url_for('admin.reports') }}"
+                >
+
+                    <input
+                        type="hidden"
+                        name="start_date"
+                        value="{{ request.args.get('start_date', '') }}"
+                    >
+
+                    <input
+                        type="hidden"
+                        name="end_date"
+                        value="{{ request.args.get('end_date', '') }}"
+                    >
+
+                    <input
+                        type="hidden"
+                        name="complaint_type"
+                        value="{{ request.args.get('complaint_type', '') }}"
+                    >
+
+                    <input
+                        type="hidden"
+                        name="status"
+                        value="{{ request.args.get('status', '') }}"
+                    >
+
+                    <input
+                        type="hidden"
+                        name="export"
+                        value="csv"
+                    >
+
+                    <button
+                        type="submit"
+                        class="btn btn-primary btn-block"
+                    >
+                        Export Complaint Report
+                    </button>
+
+                </form>
+
+            </section>
+
+
+            <!-- QUICK NAVIGATION -->
+
+            <section class="dashboard-card">
+
+                <div class="card-header">
+
+                    <div>
+
+                        <span class="section-label">
+                            Administration
+                        </span>
+
+                        <h2>
+                            Quick Navigation
+                        </h2>
+
+                    </div>
+
+                </div>
+
+
+                <div class="account-actions">
+
+                    <a
+                        href="{{ url_for('admin.dashboard') }}"
+                        class="secondary-action"
+                    >
+
+                        <span>
+                            🏠
+                        </span>
+
+                        <span>
+                            Dashboard
+                        </span>
+
+                        <span>
+                            →
+                        </span>
+
+                    </a>
+
+
+                    <a
+                        href="{{ url_for('admin.users') }}"
+                        class="secondary-action"
+                    >
+
+                        <span>
+                            👥
+                        </span>
+
+                        <span>
+                            Users
+                        </span>
+
+                        <span>
+                            →
+                        </span>
+
+                    </a>
+
+
+                    <a
+                        href="{{ url_for('admin.staff_accounts') }}"
+                        class="secondary-action"
+                    >
+
+                        <span>
+                            🧑‍💼
+                        </span>
+
+                        <span>
+                            Staff Accounts
+                        </span>
+
+                        <span>
+                            →
+                        </span>
+
+                    </a>
+
+
+                    <a
+                        href="{{ url_for('admin.upload_dataset') }}"
+                        class="secondary-action"
+                    >
+
+                        <span>
+                            ↑
+                        </span>
+
+                        <span>
+                            Upload Dataset
+                        </span>
+
+                        <span>
+                            →
+                        </span>
+
+                    </a>
+
+                </div>
+
+            </section>
+
+
+            <!-- REPORT COVERAGE -->
+
+            <section class="dashboard-card">
+
+                <div class="card-header">
+
+                    <div>
+
+                        <span class="section-label">
+                            Report Coverage
+                        </span>
+
+                        <h2>
+                            Included Information
+                        </h2>
+
+                    </div>
+
+                </div>
+
+
+                <div class="account-actions">
+
+                    <div class="secondary-action">
+
+                        <span>
+                            ✓
+                        </span>
+
+                        <span>
+                            Complaint status
+                        </span>
+
+                    </div>
+
+
+                    <div class="secondary-action">
+
+                        <span>
+                            ✓
+                        </span>
+
+                        <span>
+                            Complaint categories
+                        </span>
+
+                    </div>
+
+
+                    <div class="secondary-action">
+
+                        <span>
+                            ✓
+                        </span>
+
+                        <span>
+                            Priority distribution
+                        </span>
+
+                    </div>
+
+
+                    <div class="secondary-action">
+
+                        <span>
+                            ✓
+                        </span>
+
+                        <span>
+                            Resolution activity
+                        </span>
+
+                    </div>
+
+
+                    <div class="secondary-action">
+
+                        <span>
+                            ✓
+                        </span>
+
+                        <span>
+                            Escalation activity
+                        </span>
+
+                    </div>
+
+
+                    <div class="secondary-action">
+
+                        <span>
+                            ✓
+                        </span>
+
+                        <span>
+                            Prediction dataset information
+                        </span>
+
+                    </div>
+
+                </div>
+
+            </section>
+
+
+            <!-- SYSTEM WORKFLOW -->
+
+            <section class="dashboard-card">
+
+                <div class="card-header">
+
+                    <div>
+
+                        <span class="section-label">
+                            System Workflow
+                        </span>
+
+                        <h2>
+                            Data Flow
+                        </h2>
+
+                    </div>
+
+                </div>
+
+                <p>
+                    Resident complaints are stored in the system and can
+                    contribute to the complaint dataset. Administrator
+                    uploaded sample records can also contribute to the
+                    dataset used by the prediction workflow.
+                </p>
+
+                <p>
+                    The prediction workflow prepares training and
+                    testing records, evaluates the Random Forest model,
+                    generates prediction results, and stores the results
+                    for future analysis.
+                </p>
+
+            </section>
+
+        </aside>
+
+    </section>
+
+
+    <!-- REPORT GUIDELINES -->
+
+    <section class="dashboard-card">
+
+        <div class="card-header">
+
+            <div>
+
+                <span class="section-label">
+                    Administrative Reporting
+                </span>
+
+                <h2>
+                    Report Usage
+                </h2>
+
+            </div>
+
+        </div>
+
+
+        <div class="information-grid">
+
+            <div class="information-card">
+
+                <div class="information-card-icon">
+                    1
+                </div>
+
+                <h3>
+                    Monitor Complaints
+                </h3>
+
+                <p>
+                    Review complaint volume, categories, priorities,
+                    statuses, and resolution activity.
+                </p>
+
+            </div>
+
+
+            <div class="information-card">
+
+                <div class="information-card-icon">
+                    2
+                </div>
+
+                <h3>
+                    Monitor Escalations
+                </h3>
+
+                <p>
+                    Review complaints that exceeded their selected
+                    resolution period and required officer attention.
+                </p>
+
+            </div>
+
+
+            <div class="information-card">
+
+                <div class="information-card-icon">
+                    3
+                </div>
+
+                <h3>
+                    Review Locations
+                </h3>
+
+                <p>
+                    Identify locations with complaint activity for
+                    operational review.
+                </p>
+
+            </div>
+
+
+            <div class="information-card">
+
+                <div class="information-card-icon">
+                    4
+                </div>
+
+                <h3>
+                    Export Records
+                </h3>
+
+                <p>
+                    Export filtered complaint information for
+                    administrative reporting and analysis.
+                </p>
+
+            </div>
+
+        </div>
+
+    </section>
+
+</section>
+
+{% endblock %}
