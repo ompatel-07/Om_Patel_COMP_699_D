@@ -1,0 +1,525 @@
+{% extends "base.html" %}
+
+{% block title %}
+Create Account | Smart Power Cut Prediction System
+{% endblock %}
+
+{% block content %}
+
+<section class="auth-page">
+
+    <div class="auth-container">
+
+        <div class="auth-intro">
+
+            <div class="auth-icon">
+                ⚡
+            </div>
+
+            <span class="section-label">
+                Account Registration
+            </span>
+
+            <h1>
+                Create Your Account
+            </h1>
+
+            <p>
+                Register for the Smart Power Cut Prediction System
+                and access the services available for your authorized
+                system role.
+            </p>
+
+            <div class="auth-information">
+
+                <div class="auth-information-item">
+
+                    <span class="information-icon">
+                        ✓
+                    </span>
+
+                    <div>
+                        <strong>Resident Registration</strong>
+
+                        <p>
+                            Residents are public users and can create
+                            their own accounts directly.
+                        </p>
+                    </div>
+
+                </div>
+
+
+                <div class="auth-information-item">
+
+                    <span class="information-icon">
+                        ✓
+                    </span>
+
+                    <div>
+                        <strong>Staff Registration</strong>
+
+                        <p>
+                            Electricity Department Staff registration
+                            requires Administrator approval before
+                            dashboard access.
+                        </p>
+                    </div>
+
+                </div>
+
+
+                <div class="auth-information-item">
+
+                    <span class="information-icon">
+                        ✓
+                    </span>
+
+                    <div>
+                        <strong>Officer Registration</strong>
+
+                        <p>
+                            Senior Electricity Officer registration
+                            requires Administrator approval before
+                            dashboard access.
+                        </p>
+                    </div>
+
+                </div>
+
+
+                <div class="auth-information-item">
+
+                    <span class="information-icon">
+                        ✓
+                    </span>
+
+                    <div>
+                        <strong>Role-Based Access</strong>
+
+                        <p>
+                            After approval, authorized users can sign
+                            in and access their respective dashboard.
+                        </p>
+                    </div>
+
+                </div>
+
+            </div>
+
+        </div>
+
+
+        <div class="auth-card">
+
+            <div class="auth-card-header">
+
+                <h2>
+                    Register
+                </h2>
+
+                <p>
+                    Enter your details to create an account.
+                </p>
+
+            </div>
+
+
+            {% if form is defined and form.hidden_tag is defined %}
+
+                <form
+                    method="POST"
+                    action="{{ url_for('auth.register') }}"
+                    class="auth-form"
+                    enctype="multipart/form-data"
+                >
+
+                    {{ form.hidden_tag() }}
+
+                    <div class="form-group">
+
+                        {{ form.full_name.label }}
+
+                        {{ form.full_name(
+                            id="full_name",
+                            class="form-control",
+                            placeholder="Enter your full name",
+                            autocomplete="name"
+                        ) }}
+
+                        {% if form.full_name.errors %}
+
+                            <div class="form-error">
+
+                                {% for error in form.full_name.errors %}
+                                    <span>{{ error }}</span>
+                                {% endfor %}
+
+                            </div>
+
+                        {% endif %}
+
+                    </div>
+
+
+                    <div class="form-group">
+
+                        {{ form.email.label }}
+
+                        {{ form.email(
+                            id="email",
+                            class="form-control",
+                            placeholder="Enter your email address",
+                            autocomplete="email"
+                        ) }}
+
+                        {% if form.email.errors %}
+
+                            <div class="form-error">
+
+                                {% for error in form.email.errors %}
+                                    <span>{{ error }}</span>
+                                {% endfor %}
+
+                            </div>
+
+                        {% endif %}
+
+                    </div>
+
+
+                    <div class="form-group">
+
+                        {{ form.phone.label }}
+
+                        {{ form.phone(
+                            id="phone",
+                            class="form-control",
+                            placeholder="Enter your phone number",
+                            autocomplete="tel"
+                        ) }}
+
+                        {% if form.phone.errors %}
+
+                            <div class="form-error">
+
+                                {% for error in form.phone.errors %}
+                                    <span>{{ error }}</span>
+                                {% endfor %}
+
+                            </div>
+
+                        {% endif %}
+
+                    </div>
+
+
+                    <div class="form-group">
+
+                        {{ form.role.label }}
+
+                        {{ form.role(
+                            id="role",
+                            class="form-control"
+                        ) }}
+
+                        {% if form.role.errors %}
+
+                            <div class="form-error">
+
+                                {% for error in form.role.errors %}
+                                    <span>{{ error }}</span>
+                                {% endfor %}
+
+                            </div>
+
+                        {% endif %}
+
+                        <div class="field-help">
+
+                            <strong>Registration access:</strong>
+
+                            <span>
+                                Residents can register directly.
+                                Electricity Department Staff and
+                                Senior Electricity Officers require
+                                Administrator approval.
+                            </span>
+
+                        </div>
+
+                    </div>
+
+
+                    <div class="form-group">
+
+                        {{ form.password.label }}
+
+                        {{ form.password(
+                            id="password",
+                            class="form-control",
+                            placeholder="Create a password",
+                            autocomplete="new-password"
+                        ) }}
+
+                        {% if form.password.errors %}
+
+                            <div class="form-error">
+
+                                {% for error in form.password.errors %}
+                                    <span>{{ error }}</span>
+                                {% endfor %}
+
+                            </div>
+
+                        {% endif %}
+
+                    </div>
+
+
+                    <div class="form-group">
+
+                        {{ form.confirm_password.label }}
+
+                        {{ form.confirm_password(
+                            id="confirm_password",
+                            class="form-control",
+                            placeholder="Confirm your password",
+                            autocomplete="new-password"
+                        ) }}
+
+                        {% if form.confirm_password.errors %}
+
+                            <div class="form-error">
+
+                                {% for error in form.confirm_password.errors %}
+                                    <span>{{ error }}</span>
+                                {% endfor %}
+
+                            </div>
+
+                        {% endif %}
+
+                    </div>
+
+
+                    <button
+                        type="submit"
+                        class="btn btn-primary btn-full"
+                    >
+                        Create Account
+                    </button>
+
+                </form>
+
+            {% else %}
+
+                <form
+                    method="POST"
+                    action="{{ url_for('auth.register') }}"
+                    class="auth-form"
+                >
+
+                    <div class="form-group">
+
+                        <label for="full_name">
+                            Full Name
+                        </label>
+
+                        <input
+                            type="text"
+                            id="full_name"
+                            name="full_name"
+                            value="{{ request.form.get('full_name', '') }}"
+                            placeholder="Enter your full name"
+                            autocomplete="name"
+                            required
+                        >
+
+                    </div>
+
+
+                    <div class="form-group">
+
+                        <label for="email">
+                            Email Address
+                        </label>
+
+                        <input
+                            type="email"
+                            id="email"
+                            name="email"
+                            value="{{ request.form.get('email', '') }}"
+                            placeholder="Enter your email address"
+                            autocomplete="email"
+                            required
+                        >
+
+                    </div>
+
+
+                    <div class="form-group">
+
+                        <label for="phone">
+                            Phone Number
+                        </label>
+
+                        <input
+                            type="tel"
+                            id="phone"
+                            name="phone"
+                            value="{{ request.form.get('phone', '') }}"
+                            placeholder="Enter your phone number"
+                            autocomplete="tel"
+                            required
+                        >
+
+                    </div>
+
+
+                    <div class="form-group">
+
+                        <label for="role">
+                            Account Role
+                        </label>
+
+                        <select
+                            id="role"
+                            name="role"
+                            required
+                        >
+
+                            <option value="">
+                                Select account role
+                            </option>
+
+                            <option
+                                value="resident"
+                                {% if request.form.get('role') == 'resident' %}
+                                    selected
+                                {% endif %}
+                            >
+                                Resident
+                            </option>
+
+                            <option
+                                value="staff"
+                                {% if request.form.get('role') == 'staff' %}
+                                    selected
+                                {% endif %}
+                            >
+                                Electricity Department Staff
+                            </option>
+
+                            <option
+                                value="officer"
+                                {% if request.form.get('role') == 'officer' %}
+                                    selected
+                                {% endif %}
+                            >
+                                Senior Electricity Officer
+                            </option>
+
+                        </select>
+
+                        <div class="field-help">
+
+                            <strong>Important:</strong>
+
+                            <span>
+                                Resident accounts can be created directly.
+                                Staff and Officer registrations remain
+                                pending until approved by the Administrator.
+                            </span>
+
+                        </div>
+
+                    </div>
+
+
+                    <div class="form-group">
+
+                        <label for="password">
+                            Password
+                        </label>
+
+                        <input
+                            type="password"
+                            id="password"
+                            name="password"
+                            placeholder="Create a password"
+                            autocomplete="new-password"
+                            required
+                        >
+
+                    </div>
+
+
+                    <div class="form-group">
+
+                        <label for="confirm_password">
+                            Confirm Password
+                        </label>
+
+                        <input
+                            type="password"
+                            id="confirm_password"
+                            name="confirm_password"
+                            placeholder="Confirm your password"
+                            autocomplete="new-password"
+                            required
+                        >
+
+                    </div>
+
+
+                    <button
+                        type="submit"
+                        class="btn btn-primary btn-full"
+                    >
+                        Create Account
+                    </button>
+
+                </form>
+
+            {% endif %}
+
+
+            <div class="auth-divider">
+                <span>Already have an account?</span>
+            </div>
+
+
+            <div class="auth-register">
+
+                <a
+                    href="{{ url_for('auth.login') }}"
+                    class="btn btn-secondary btn-full"
+                >
+                    Sign In
+                </a>
+
+            </div>
+
+
+            <div class="auth-help">
+
+                <span class="help-icon">
+                    i
+                </span>
+
+                <p>
+                    Staff and Senior Electricity Officer accounts
+                    cannot access their role dashboards until their
+                    registration has been approved by the Administrator.
+                </p>
+
+            </div>
+
+        </div>
+
+    </div>
+
+</section>
+
+{% endblock %}
