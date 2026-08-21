@@ -1,0 +1,1120 @@
+{% extends "base.html" %}
+
+{% block title %}
+Submit Complaint | Smart Power Cut Prediction System
+{% endblock %}
+
+{% block content %}
+
+<section class="dashboard-page">
+
+    <div class="dashboard-header">
+
+        <div>
+            <span class="section-label">
+                Resident Services
+            </span>
+
+            <h1>
+                Submit a Complaint
+            </h1>
+
+            <p>
+                Report an electricity-related issue by providing the
+                complaint type, location, date and time, supporting
+                image, and your preferred resolution period.
+            </p>
+        </div>
+
+        <div class="dashboard-header-actions">
+
+            <a
+                href="{{ url_for('resident.dashboard') }}"
+                class="btn btn-secondary"
+            >
+                ← Dashboard
+            </a>
+
+            <a
+                href="{{ url_for('resident.complaints') }}"
+                class="btn btn-primary"
+            >
+                My Complaints
+            </a>
+
+        </div>
+
+    </div>
+
+
+    <section class="profile-layout">
+
+        <div class="dashboard-card profile-main-card">
+
+            <div class="card-header">
+
+                <div>
+
+                    <span class="section-label">
+                        Complaint Details
+                    </span>
+
+                    <h2>
+                        Report an Electricity Issue
+                    </h2>
+
+                </div>
+
+                <div class="security-icon">
+                    ⚡
+                </div>
+
+            </div>
+
+
+            <form
+                method="POST"
+                action="{{ url_for('resident.complaint_form') }}"
+                class="auth-form"
+                enctype="multipart/form-data"
+            >
+
+                {% if form is defined and form.hidden_tag is defined %}
+                    {{ form.hidden_tag() }}
+                {% endif %}
+
+
+                {% if form is defined and form.complaint_type is defined %}
+
+                    <div class="form-group">
+
+                        {{ form.complaint_type.label }}
+
+                        {{ form.complaint_type(
+                            id="complaint_type",
+                            class="form-control"
+                        ) }}
+
+                        {% if form.complaint_type.errors %}
+
+                            <div class="form-error">
+
+                                {% for error in form.complaint_type.errors %}
+                                    <span>{{ error }}</span>
+                                {% endfor %}
+
+                            </div>
+
+                        {% endif %}
+
+                        <div class="field-help">
+                            Select the category that best describes
+                            the electricity issue.
+                        </div>
+
+                    </div>
+
+
+                    <div class="form-group">
+
+                        {{ form.location.label }}
+
+                        {{ form.location(
+                            id="location",
+                            class="form-control",
+                            placeholder="Enter the complaint location"
+                        ) }}
+
+                        {% if form.location.errors %}
+
+                            <div class="form-error">
+
+                                {% for error in form.location.errors %}
+                                    <span>{{ error }}</span>
+                                {% endfor %}
+
+                            </div>
+
+                        {% endif %}
+
+                        <div class="field-help">
+                            Provide the area, street, locality, or other
+                            useful location information where the issue
+                            occurred.
+                        </div>
+
+                    </div>
+
+
+                    <div class="form-row">
+
+                        <div class="form-group">
+
+                            {{ form.complaint_date.label }}
+
+                            {{ form.complaint_date(
+                                id="complaint_date",
+                                class="form-control"
+                            ) }}
+
+                            {% if form.complaint_date.errors %}
+
+                                <div class="form-error">
+
+                                    {% for error in form.complaint_date.errors %}
+                                        <span>{{ error }}</span>
+                                    {% endfor %}
+
+                                </div>
+
+                            {% endif %}
+
+                        </div>
+
+
+                        <div class="form-group">
+
+                            {{ form.complaint_time.label }}
+
+                            {{ form.complaint_time(
+                                id="complaint_time",
+                                class="form-control"
+                            ) }}
+
+                            {% if form.complaint_time.errors %}
+
+                                <div class="form-error">
+
+                                    {% for error in form.complaint_time.errors %}
+                                        <span>{{ error }}</span>
+                                    {% endfor %}
+
+                                </div>
+
+                            {% endif %}
+
+                        </div>
+
+                    </div>
+
+
+                    <div class="form-group">
+
+                        {{ form.description.label }}
+
+                        {{ form.description(
+                            id="description",
+                            class="form-control",
+                            rows="5",
+                            placeholder="Describe the issue and provide any useful details"
+                        ) }}
+
+                        {% if form.description.errors %}
+
+                            <div class="form-error">
+
+                                {% for error in form.description.errors %}
+                                    <span>{{ error }}</span>
+                                {% endfor %}
+
+                            </div>
+
+                        {% endif %}
+
+                        <div class="field-help">
+                            Describe what happened, the affected area,
+                            and any details that may help the department
+                            staff investigate the complaint.
+                        </div>
+
+                    </div>
+
+
+                    <div class="form-group">
+
+                        {{ form.image.label }}
+
+                        {{ form.image(
+                            id="image",
+                            class="form-control",
+                            accept="image/*"
+                        ) }}
+
+                        {% if form.image.errors %}
+
+                            <div class="form-error">
+
+                                {% for error in form.image.errors %}
+                                    <span>{{ error }}</span>
+                                {% endfor %}
+
+                            </div>
+
+                        {% endif %}
+
+                        <div class="field-help">
+                            Upload an image showing the reported issue,
+                            if available.
+                        </div>
+
+                    </div>
+
+
+                    <div class="form-group">
+
+                        {{ form.preferred_resolution_time.label }}
+
+                        {{ form.preferred_resolution_time(
+                            id="preferred_resolution_time",
+                            class="form-control"
+                        ) }}
+
+                        {% if form.preferred_resolution_time.errors %}
+
+                            <div class="form-error">
+
+                                {% for error in form.preferred_resolution_time.errors %}
+                                    <span>{{ error }}</span>
+                                {% endfor %}
+
+                            </div>
+
+                        {% endif %}
+
+                        <div class="field-help">
+                            Select either 24 hours or 48 hours as your
+                            preferred resolution period. The selected
+                            period is also used by the system when
+                            determining automatic escalation.
+                        </div>
+
+                    </div>
+
+
+                    <div class="complaint-types">
+
+                        <div class="card-header">
+
+                            <div>
+
+                                <span class="section-label">
+                                    Supported Complaint Types
+                                </span>
+
+                                <h2>
+                                    What Can You Report?
+                                </h2>
+
+                            </div>
+
+                        </div>
+
+
+                        <div class="information-grid">
+
+                            <div class="information-card">
+
+                                <div class="information-card-icon">
+                                    ⚡
+                                </div>
+
+                                <h3>
+                                    Power Cut
+                                </h3>
+
+                                <p>
+                                    Report an electricity interruption
+                                    or power cut affecting your area.
+                                </p>
+
+                            </div>
+
+
+                            <div class="information-card">
+
+                                <div class="information-card-icon">
+                                    💡
+                                </div>
+
+                                <h3>
+                                    Streetlight
+                                </h3>
+
+                                <p>
+                                    Report a damaged or non-functioning
+                                    streetlight.
+                                </p>
+
+                            </div>
+
+
+                            <div class="information-card">
+
+                                <div class="information-card-icon">
+                                    ⚠
+                                </div>
+
+                                <h3>
+                                    Electric Pole Damage
+                                </h3>
+
+                                <p>
+                                    Report damaged, unsafe, or affected
+                                    electric poles.
+                                </p>
+
+                            </div>
+
+
+                            <div class="information-card">
+
+                                <div class="information-card-icon">
+                                    🔌
+                                </div>
+
+                                <h3>
+                                    Voltage Issue
+                                </h3>
+
+                                <p>
+                                    Report abnormal, unstable, or
+                                    problematic voltage conditions.
+                                </p>
+
+                            </div>
+
+                        </div>
+
+                    </div>
+
+
+                    <div class="complaint-process-note">
+
+                        <div class="information-note">
+
+                            <span>
+                                i
+                            </span>
+
+                            <p>
+                                After submission, the system records
+                                the complaint, assigns its priority
+                                using rule-based logic, and makes it
+                                available for departmental processing.
+                                Unresolved complaints are automatically
+                                escalated when the selected 24 or
+                                48-hour resolution period expires.
+                            </p>
+
+                        </div>
+
+                    </div>
+
+
+                    <div class="form-actions">
+
+                        <a
+                            href="{{ url_for('resident.dashboard') }}"
+                            class="btn btn-secondary"
+                        >
+                            Cancel
+                        </a>
+
+                        <button
+                            type="submit"
+                            class="btn btn-primary"
+                        >
+                            Submit Complaint
+                        </button>
+
+                    </div>
+
+                {% else %}
+
+                    <div class="form-group">
+
+                        <label for="complaint_type">
+                            Complaint Type
+                        </label>
+
+                        <select
+                            id="complaint_type"
+                            name="complaint_type"
+                            required
+                        >
+
+                            <option value="">
+                                Select complaint type
+                            </option>
+
+                            <option value="power_cut">
+                                Power Cut
+                            </option>
+
+                            <option value="streetlight">
+                                Streetlight
+                            </option>
+
+                            <option value="pole_damage">
+                                Electric Pole Damage
+                            </option>
+
+                            <option value="voltage_issue">
+                                Voltage Issue
+                            </option>
+
+                        </select>
+
+                        <div class="field-help">
+                            Select the category that best describes
+                            the electricity issue.
+                        </div>
+
+                    </div>
+
+
+                    <div class="form-group">
+
+                        <label for="location">
+                            Complaint Location
+                        </label>
+
+                        <input
+                            type="text"
+                            id="location"
+                            name="location"
+                            value="{{ request.form.get('location', '') }}"
+                            placeholder="Enter the complaint location"
+                            required
+                        >
+
+                        <div class="field-help">
+                            Provide the area, street, locality, or other
+                            useful location information.
+                        </div>
+
+                    </div>
+
+
+                    <div class="form-row">
+
+                        <div class="form-group">
+
+                            <label for="complaint_date">
+                                Complaint Date
+                            </label>
+
+                            <input
+                                type="date"
+                                id="complaint_date"
+                                name="complaint_date"
+                                value="{{ request.form.get('complaint_date', '') }}"
+                                required
+                            >
+
+                        </div>
+
+
+                        <div class="form-group">
+
+                            <label for="complaint_time">
+                                Complaint Time
+                            </label>
+
+                            <input
+                                type="time"
+                                id="complaint_time"
+                                name="complaint_time"
+                                value="{{ request.form.get('complaint_time', '') }}"
+                                required
+                            >
+
+                        </div>
+
+                    </div>
+
+
+                    <div class="form-group">
+
+                        <label for="description">
+                            Complaint Description
+                        </label>
+
+                        <textarea
+                            id="description"
+                            name="description"
+                            rows="5"
+                            placeholder="Describe the issue and provide any useful details"
+                            required
+                        >{{ request.form.get('description', '') }}</textarea>
+
+                        <div class="field-help">
+                            Include useful details that can help staff
+                            investigate and resolve the complaint.
+                        </div>
+
+                    </div>
+
+
+                    <div class="form-group">
+
+                        <label for="image">
+                            Supporting Image
+                        </label>
+
+                        <input
+                            type="file"
+                            id="image"
+                            name="image"
+                            accept="image/*"
+                        >
+
+                        <div class="field-help">
+                            Upload an image of the reported issue,
+                            if available.
+                        </div>
+
+                    </div>
+
+
+                    <div class="form-group">
+
+                        <label for="preferred_resolution_time">
+                            Preferred Resolution Time
+                        </label>
+
+                        <select
+                            id="preferred_resolution_time"
+                            name="preferred_resolution_time"
+                            required
+                        >
+
+                            <option value="">
+                                Select resolution period
+                            </option>
+
+                            <option value="24">
+                                24 Hours
+                            </option>
+
+                            <option value="48">
+                                48 Hours
+                            </option>
+
+                        </select>
+
+                        <div class="field-help">
+                            Select either 24 or 48 hours. This selected
+                            period is used for the complaint's resolution
+                            deadline and automatic escalation processing.
+                        </div>
+
+                    </div>
+
+
+                    <div class="complaint-types">
+
+                        <div class="card-header">
+
+                            <div>
+
+                                <span class="section-label">
+                                    Supported Complaint Types
+                                </span>
+
+                                <h2>
+                                    What Can You Report?
+                                </h2>
+
+                            </div>
+
+                        </div>
+
+
+                        <div class="information-grid">
+
+                            <div class="information-card">
+
+                                <div class="information-card-icon">
+                                    ⚡
+                                </div>
+
+                                <h3>
+                                    Power Cut
+                                </h3>
+
+                                <p>
+                                    Report an electricity interruption
+                                    or power cut affecting your area.
+                                </p>
+
+                            </div>
+
+
+                            <div class="information-card">
+
+                                <div class="information-card-icon">
+                                    💡
+                                </div>
+
+                                <h3>
+                                    Streetlight
+                                </h3>
+
+                                <p>
+                                    Report a damaged or non-functioning
+                                    streetlight.
+                                </p>
+
+                            </div>
+
+
+                            <div class="information-card">
+
+                                <div class="information-card-icon">
+                                    ⚠
+                                </div>
+
+                                <h3>
+                                    Electric Pole Damage
+                                </h3>
+
+                                <p>
+                                    Report damaged or unsafe electric
+                                    poles.
+                                </p>
+
+                            </div>
+
+
+                            <div class="information-card">
+
+                                <div class="information-card-icon">
+                                    🔌
+                                </div>
+
+                                <h3>
+                                    Voltage Issue
+                                </h3>
+
+                                <p>
+                                    Report abnormal or unstable
+                                    voltage conditions.
+                                </p>
+
+                            </div>
+
+                        </div>
+
+                    </div>
+
+
+                    <div class="complaint-process-note">
+
+                        <div class="information-note">
+
+                            <span>
+                                i
+                            </span>
+
+                            <p>
+                                After submission, the system records
+                                the complaint and applies rule-based
+                                priority logic. Unresolved complaints
+                                are automatically escalated after
+                                the selected 24 or 48-hour period.
+                            </p>
+
+                        </div>
+
+                    </div>
+
+
+                    <div class="form-actions">
+
+                        <a
+                            href="{{ url_for('resident.dashboard') }}"
+                            class="btn btn-secondary"
+                        >
+                            Cancel
+                        </a>
+
+                        <button
+                            type="submit"
+                            class="btn btn-primary"
+                        >
+                            Submit Complaint
+                        </button>
+
+                    </div>
+
+                {% endif %}
+
+            </form>
+
+        </div>
+
+
+        <aside class="profile-sidebar">
+
+
+            <div class="dashboard-card">
+
+                <div class="card-header">
+
+                    <div>
+
+                        <span class="section-label">
+                            Submission Guide
+                        </span>
+
+                        <h2>
+                            Before You Submit
+                        </h2>
+
+                    </div>
+
+                </div>
+
+
+                <div class="account-actions">
+
+                    <div class="secondary-action">
+
+                        <span>
+                            01
+                        </span>
+
+                        <span>
+                            Select the complaint type
+                        </span>
+
+                    </div>
+
+
+                    <div class="secondary-action">
+
+                        <span>
+                            02
+                        </span>
+
+                        <span>
+                            Enter the exact location
+                        </span>
+
+                    </div>
+
+
+                    <div class="secondary-action">
+
+                        <span>
+                            03
+                        </span>
+
+                        <span>
+                            Provide date and time
+                        </span>
+
+                    </div>
+
+
+                    <div class="secondary-action">
+
+                        <span>
+                            04
+                        </span>
+
+                        <span>
+                            Describe the issue clearly
+                        </span>
+
+                    </div>
+
+
+                    <div class="secondary-action">
+
+                        <span>
+                            05
+                        </span>
+
+                        <span>
+                            Add an image when available
+                        </span>
+
+                    </div>
+
+
+                    <div class="secondary-action">
+
+                        <span>
+                            06
+                        </span>
+
+                        <span>
+                            Select 24 or 48 hours
+                        </span>
+
+                    </div>
+
+                </div>
+
+            </div>
+
+
+            <div class="dashboard-card resolution-card">
+
+                <div class="card-header">
+
+                    <div>
+
+                        <span class="section-label">
+                            Resolution Period
+                        </span>
+
+                        <h2>
+                            24 or 48 Hours
+                        </h2>
+
+                    </div>
+
+                </div>
+
+
+                <div class="resolution-options">
+
+                    <div class="resolution-option">
+
+                        <strong>
+                            24 Hours
+                        </strong>
+
+                        <span>
+                            Preferred shorter resolution period
+                        </span>
+
+                    </div>
+
+
+                    <div class="resolution-option">
+
+                        <strong>
+                            48 Hours
+                        </strong>
+
+                        <span>
+                            Preferred extended resolution period
+                        </span>
+
+                    </div>
+
+                </div>
+
+
+                <div class="information-note">
+
+                    <span>
+                        i
+                    </span>
+
+                    <p>
+                        The selected period is important because an
+                        unresolved complaint can be automatically
+                        escalated after its resolution deadline.
+                    </p>
+
+                </div>
+
+            </div>
+
+
+            <div class="dashboard-card">
+
+                <div class="card-header">
+
+                    <div>
+
+                        <span class="section-label">
+                            After Submission
+                        </span>
+
+                        <h2>
+                            What Happens Next?
+                        </h2>
+
+                    </div>
+
+                </div>
+
+
+                <div class="information-list">
+
+                    <div class="information-list-item">
+
+                        <span class="information-card-icon">
+                            ✓
+                        </span>
+
+                        <p>
+                            The complaint is recorded in the system.
+                        </p>
+
+                    </div>
+
+
+                    <div class="information-list-item">
+
+                        <span class="information-card-icon">
+                            ⚡
+                        </span>
+
+                        <p>
+                            The system assigns complaint priority
+                            using rule-based logic.
+                        </p>
+
+                    </div>
+
+
+                    <div class="information-list-item">
+
+                        <span class="information-card-icon">
+                            🔔
+                        </span>
+
+                        <p>
+                            You can receive status and resolution
+                            notifications.
+                        </p>
+
+                    </div>
+
+
+                    <div class="information-list-item">
+
+                        <span class="information-card-icon">
+                            ↑
+                        </span>
+
+                        <p>
+                            Unresolved complaints can be automatically
+                            escalated after the selected period.
+                        </p>
+
+                    </div>
+
+                </div>
+
+            </div>
+
+
+            <div class="dashboard-card">
+
+                <div class="card-header">
+
+                    <div>
+
+                        <span class="section-label">
+                            Need to Check Something?
+                        </span>
+
+                        <h2>
+                            Resident Services
+                        </h2>
+
+                    </div>
+
+                </div>
+
+
+                <div class="account-actions">
+
+                    <a
+                        href="{{ url_for('resident.complaints') }}"
+                        class="secondary-action"
+                    >
+
+                        <span>
+                            📋
+                        </span>
+
+                        <span>
+                            My Complaints
+                        </span>
+
+                        <span>
+                            →
+                        </span>
+
+                    </a>
+
+
+                    <a
+                        href="{{ url_for('resident.history') }}"
+                        class="secondary-action"
+                    >
+
+                        <span>
+                            🕘
+                        </span>
+
+                        <span>
+                            Complaint History
+                        </span>
+
+                        <span>
+                            →
+                        </span>
+
+                    </a>
+
+
+                    <a
+                        href="{{ url_for('resident.predictions') }}"
+                        class="secondary-action"
+                    >
+
+                        <span>
+                            📊
+                        </span>
+
+                        <span>
+                            Power Cut Predictions
+                        </span>
+
+                        <span>
+                            →
+                        </span>
+
+                    </a>
+
+
+                    <a
+                        href="{{ url_for('resident.notifications') }}"
+                        class="secondary-action"
+                    >
+
+                        <span>
+                            🔔
+                        </span>
+
+                        <span>
+                            Notifications
+                        </span>
+
+                        <span>
+                            →
+                        </span>
+
+                    </a>
+
+                </div>
+
+            </div>
+
+        </aside>
+
+    </section>
+
+</section>
+
+{% endblock %}

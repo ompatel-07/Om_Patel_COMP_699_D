@@ -1,0 +1,594 @@
+{% extends "base.html" %}
+
+{% block title %}
+Profile | Smart Power Cut Prediction System
+{% endblock %}
+
+{% block content %}
+
+<section class="dashboard-page">
+
+    <div class="dashboard-header">
+
+        <div>
+            <span class="section-label">
+                Resident Account
+            </span>
+
+            <h1>
+                My Profile
+            </h1>
+
+            <p>
+                View and update your registered account information.
+                Keep your contact details current so that complaint
+                updates and system notifications can reach you.
+            </p>
+        </div>
+
+        <div class="dashboard-header-actions">
+
+            <a
+                href="{{ url_for('resident.dashboard') }}"
+                class="btn btn-secondary"
+            >
+                ← Dashboard
+            </a>
+
+            <a
+                href="{{ url_for('resident.change_password') }}"
+                class="btn btn-primary"
+            >
+                🔒 Change Password
+            </a>
+
+        </div>
+
+    </div>
+
+
+    <section class="profile-layout">
+
+        <div class="dashboard-card profile-main-card">
+
+            <div class="card-header">
+
+                <div>
+
+                    <span class="section-label">
+                        Account Information
+                    </span>
+
+                    <h2>
+                        Personal Details
+                    </h2>
+
+                </div>
+
+            </div>
+
+
+            <form
+                method="POST"
+                action="{{ url_for('resident.profile') }}"
+                class="auth-form profile-form"
+            >
+
+                {% if form is defined and form.hidden_tag is defined %}
+                    {{ form.hidden_tag() }}
+                {% endif %}
+
+
+                {% if form is defined and form.full_name is defined %}
+
+                    <div class="form-group">
+
+                        {{ form.full_name.label }}
+
+                        {{ form.full_name(
+                            id="full_name",
+                            class="form-control",
+                            placeholder="Enter your full name",
+                            autocomplete="name"
+                        ) }}
+
+                        {% if form.full_name.errors %}
+
+                            <div class="form-error">
+
+                                {% for error in form.full_name.errors %}
+                                    <span>{{ error }}</span>
+                                {% endfor %}
+
+                            </div>
+
+                        {% endif %}
+
+                    </div>
+
+
+                    <div class="form-group">
+
+                        {{ form.email.label }}
+
+                        {{ form.email(
+                            id="email",
+                            class="form-control",
+                            placeholder="Enter your email address",
+                            autocomplete="email"
+                        ) }}
+
+                        {% if form.email.errors %}
+
+                            <div class="form-error">
+
+                                {% for error in form.email.errors %}
+                                    <span>{{ error }}</span>
+                                {% endfor %}
+
+                            </div>
+
+                        {% endif %}
+
+                        <div class="field-help">
+                            Email is used for account identification
+                            and system notifications.
+                        </div>
+
+                    </div>
+
+
+                    <div class="form-group">
+
+                        {{ form.phone.label }}
+
+                        {{ form.phone(
+                            id="phone",
+                            class="form-control",
+                            placeholder="Enter your phone number",
+                            autocomplete="tel"
+                        ) }}
+
+                        {% if form.phone.errors %}
+
+                            <div class="form-error">
+
+                                {% for error in form.phone.errors %}
+                                    <span>{{ error }}</span>
+                                {% endfor %}
+
+                            </div>
+
+                        {% endif %}
+
+                    </div>
+
+
+                    <div class="profile-role-display">
+
+                        <div class="profile-role-icon">
+                            👤
+                        </div>
+
+                        <div>
+
+                            <span class="detail-label">
+                                Account Role
+                            </span>
+
+                            <strong>
+                                Resident
+                            </strong>
+
+                            <small>
+                                Public user account
+                            </small>
+
+                        </div>
+
+                    </div>
+
+
+                    <div class="form-actions">
+
+                        <a
+                            href="{{ url_for('resident.dashboard') }}"
+                            class="btn btn-secondary"
+                        >
+                            Cancel
+                        </a>
+
+                        <button
+                            type="submit"
+                            class="btn btn-primary"
+                        >
+                            Save Profile Changes
+                        </button>
+
+                    </div>
+
+                {% else %}
+
+                    <div class="form-group">
+
+                        <label for="full_name">
+                            Full Name
+                        </label>
+
+                        <input
+                            type="text"
+                            id="full_name"
+                            name="full_name"
+                            value="{{ current_user.full_name or '' }}"
+                            placeholder="Enter your full name"
+                            autocomplete="name"
+                            required
+                        >
+
+                    </div>
+
+
+                    <div class="form-group">
+
+                        <label for="email">
+                            Email Address
+                        </label>
+
+                        <input
+                            type="email"
+                            id="email"
+                            name="email"
+                            value="{{ current_user.email or '' }}"
+                            placeholder="Enter your email address"
+                            autocomplete="email"
+                            required
+                        >
+
+                        <div class="field-help">
+                            Email is used for account identification
+                            and system notifications.
+                        </div>
+
+                    </div>
+
+
+                    <div class="form-group">
+
+                        <label for="phone">
+                            Phone Number
+                        </label>
+
+                        <input
+                            type="tel"
+                            id="phone"
+                            name="phone"
+                            value="{{ current_user.phone or '' }}"
+                            placeholder="Enter your phone number"
+                            autocomplete="tel"
+                            required
+                        >
+
+                    </div>
+
+
+                    <div class="profile-role-display">
+
+                        <div class="profile-role-icon">
+                            👤
+                        </div>
+
+                        <div>
+
+                            <span class="detail-label">
+                                Account Role
+                            </span>
+
+                            <strong>
+                                Resident
+                            </strong>
+
+                            <small>
+                                Public user account
+                            </small>
+
+                        </div>
+
+                    </div>
+
+
+                    <div class="form-actions">
+
+                        <a
+                            href="{{ url_for('resident.dashboard') }}"
+                            class="btn btn-secondary"
+                        >
+                            Cancel
+                        </a>
+
+                        <button
+                            type="submit"
+                            class="btn btn-primary"
+                        >
+                            Save Profile Changes
+                        </button>
+
+                    </div>
+
+                {% endif %}
+
+            </form>
+
+        </div>
+
+
+        <aside class="profile-sidebar">
+
+
+            <div class="dashboard-card account-overview-card">
+
+                <div class="card-header">
+
+                    <div>
+
+                        <span class="section-label">
+                            Account Overview
+                        </span>
+
+                        <h2>
+                            Account Details
+                        </h2>
+
+                    </div>
+
+                </div>
+
+
+                <div class="profile-avatar">
+                    {{ current_user.full_name[:1]|upper }}
+                </div>
+
+
+                <div class="profile-summary">
+
+                    <h3>
+                        {{ current_user.full_name }}
+                    </h3>
+
+                    <span class="status-badge status-active">
+                        Active Resident
+                    </span>
+
+                </div>
+
+
+                <div class="profile-details">
+
+                    <div class="profile-detail-row">
+
+                        <span class="detail-label">
+                            Email
+                        </span>
+
+                        <strong>
+                            {{ current_user.email }}
+                        </strong>
+
+                    </div>
+
+
+                    <div class="profile-detail-row">
+
+                        <span class="detail-label">
+                            Phone
+                        </span>
+
+                        <strong>
+                            {{ current_user.phone or 'Not provided' }}
+                        </strong>
+
+                    </div>
+
+
+                    <div class="profile-detail-row">
+
+                        <span class="detail-label">
+                            Role
+                        </span>
+
+                        <strong>
+                            Resident
+                        </strong>
+
+                    </div>
+
+
+                    {% if current_user.created_at %}
+
+                        <div class="profile-detail-row">
+
+                            <span class="detail-label">
+                                Account Created
+                            </span>
+
+                            <strong>
+                                {{ current_user.created_at.strftime('%d %b %Y') }}
+                            </strong>
+
+                        </div>
+
+                    {% endif %}
+
+                </div>
+
+            </div>
+
+
+            <div class="dashboard-card security-card">
+
+                <div class="card-header">
+
+                    <div>
+
+                        <span class="section-label">
+                            Account Security
+                        </span>
+
+                        <h2>
+                            Password
+                        </h2>
+
+                    </div>
+
+                </div>
+
+                <div class="security-content">
+
+                    <div class="security-icon">
+                        🔒
+                    </div>
+
+                    <div>
+
+                        <strong>
+                            Keep your account secure
+                        </strong>
+
+                        <p>
+                            Change your password regularly and do not
+                            share your account credentials with others.
+                        </p>
+
+                    </div>
+
+                </div>
+
+
+                <a
+                    href="{{ url_for('resident.change_password') }}"
+                    class="btn btn-secondary btn-full"
+                >
+                    Change Password
+                </a>
+
+            </div>
+
+
+            <div class="dashboard-card notification-card">
+
+                <div class="card-header">
+
+                    <div>
+
+                        <span class="section-label">
+                            Notifications
+                        </span>
+
+                        <h2>
+                            Stay Updated
+                        </h2>
+
+                    </div>
+
+                </div>
+
+                <p>
+                    Complaint status changes, resolution updates,
+                    escalation notices, and other system messages
+                    are available in your notifications.
+                </p>
+
+                <a
+                    href="{{ url_for('resident.notifications') }}"
+                    class="text-link"
+                >
+                    View Notifications →
+                </a>
+
+            </div>
+
+        </aside>
+
+    </section>
+
+
+    <section class="dashboard-card profile-guidelines">
+
+        <div class="card-header">
+
+            <div>
+
+                <span class="section-label">
+                    Profile Guidelines
+                </span>
+
+                <h2>
+                    Keep Your Information Accurate
+                </h2>
+
+            </div>
+
+        </div>
+
+
+        <div class="information-grid">
+
+            <div class="information-card">
+
+                <div class="information-card-icon">
+                    ✓
+                </div>
+
+                <h3>
+                    Correct Contact Details
+                </h3>
+
+                <p>
+                    Keep your email address and phone number updated
+                    so you can receive important complaint notifications.
+                </p>
+
+            </div>
+
+
+            <div class="information-card">
+
+                <div class="information-card-icon">
+                    🔔
+                </div>
+
+                <h3>
+                    Complaint Notifications
+                </h3>
+
+                <p>
+                    The system can notify you when your complaint status
+                    changes, is resolved, or is escalated.
+                </p>
+
+            </div>
+
+
+            <div class="information-card">
+
+                <div class="information-card-icon">
+                    🔒
+                </div>
+
+                <h3>
+                    Account Protection
+                </h3>
+
+                <p>
+                    Use a strong password and change it whenever you
+                    believe your account security may be affected.
+                </p>
+
+            </div>
+
+        </div>
+
+    </section>
+
+</section>
+
+{% endblock %}

@@ -1,0 +1,733 @@
+{% extends "base.html" %}
+
+{% block title %}
+My Complaints | Smart Power Cut Prediction System
+{% endblock %}
+
+{% block content %}
+
+<section class="dashboard-page">
+
+    <div class="dashboard-header">
+
+        <div>
+            <span class="section-label">
+                Resident Portal
+            </span>
+
+            <h1>
+                My Complaints
+            </h1>
+
+            <p>
+                View and track the electricity complaints you have
+                submitted, monitor their current status, and open
+                individual complaint details.
+            </p>
+        </div>
+
+        <div class="dashboard-header-actions">
+
+            <a
+                href="{{ url_for('resident.dashboard') }}"
+                class="btn btn-secondary"
+            >
+                ← Dashboard
+            </a>
+
+            <a
+                href="{{ url_for('resident.complaint_form') }}"
+                class="btn btn-primary"
+            >
+                + Submit Complaint
+            </a>
+
+        </div>
+
+    </div>
+
+
+    <section class="dashboard-summary">
+
+        <article class="summary-card">
+
+            <div class="summary-icon">
+                📋
+            </div>
+
+            <div class="summary-content">
+
+                <span class="summary-label">
+                    Total
+                </span>
+
+                <strong class="summary-value">
+                    {{ complaints|length if complaints is defined else 0 }}
+                </strong>
+
+                <span class="summary-description">
+                    Submitted complaints
+                </span>
+
+            </div>
+
+        </article>
+
+
+        <article class="summary-card">
+
+            <div class="summary-icon">
+                ⏳
+            </div>
+
+            <div class="summary-content">
+
+                <span class="summary-label">
+                    Active
+                </span>
+
+                <strong class="summary-value">
+                    {{ active_complaints|default(0) }}
+                </strong>
+
+                <span class="summary-description">
+                    Being processed
+                </span>
+
+            </div>
+
+        </article>
+
+
+        <article class="summary-card">
+
+            <div class="summary-icon">
+                ✓
+            </div>
+
+            <div class="summary-content">
+
+                <span class="summary-label">
+                    Resolved
+                </span>
+
+                <strong class="summary-value">
+                    {{ resolved_complaints|default(0) }}
+                </strong>
+
+                <span class="summary-description">
+                    Completed complaints
+                </span>
+
+            </div>
+
+        </article>
+
+
+        <article class="summary-card">
+
+            <div class="summary-icon">
+                ↑
+            </div>
+
+            <div class="summary-content">
+
+                <span class="summary-label">
+                    Escalated
+                </span>
+
+                <strong class="summary-value">
+                    {{ escalated_complaints|default(0) }}
+                </strong>
+
+                <span class="summary-description">
+                    Requiring officer review
+                </span>
+
+            </div>
+
+        </article>
+
+    </section>
+
+
+    <section class="dashboard-card">
+
+        <div class="card-header">
+
+            <div>
+
+                <span class="section-label">
+                    Complaint Records
+                </span>
+
+                <h2>
+                    Submitted Complaints
+                </h2>
+
+            </div>
+
+            {% if complaints %}
+
+                <span class="record-count">
+                    {{ complaints|length }} record{% if complaints|length != 1 %}s{% endif %}
+                </span>
+
+            {% endif %}
+
+        </div>
+
+
+        {% if complaints %}
+
+            <div class="complaint-table-wrapper">
+
+                <table class="data-table">
+
+                    <thead>
+
+                        <tr>
+
+                            <th>
+                                Complaint
+                            </th>
+
+                            <th>
+                                Type
+                            </th>
+
+                            <th>
+                                Location
+                            </th>
+
+                            <th>
+                                Priority
+                            </th>
+
+                            <th>
+                                Resolution Preference
+                            </th>
+
+                            <th>
+                                Status
+                            </th>
+
+                            <th>
+                                Submitted
+                            </th>
+
+                            <th>
+                                Action
+                            </th>
+
+                        </tr>
+
+                    </thead>
+
+                    <tbody>
+
+                        {% for complaint in complaints %}
+
+                            <tr>
+
+                                <td>
+
+                                    <strong>
+                                        {{ complaint.complaint_number }}
+                                    </strong>
+
+                                </td>
+
+
+                                <td>
+                                    {{ complaint.complaint_type|replace('_', ' ')|title }}
+                                </td>
+
+
+                                <td>
+                                    {{ complaint.location }}
+                                </td>
+
+
+                                <td>
+
+                                    {% if complaint.priority %}
+
+                                        {% set priority_class =
+                                            complaint.priority|lower
+                                            |replace(' ', '-')
+                                            |replace('_', '-')
+                                        %}
+
+                                        <span
+                                            class="status-badge priority-{{ priority_class }}"
+                                        >
+                                            {{ complaint.priority }}
+                                        </span>
+
+                                    {% else %}
+
+                                        <span class="muted-text">
+                                            Not assigned
+                                        </span>
+
+                                    {% endif %}
+
+                                </td>
+
+
+                                <td>
+
+                                    {% if complaint.preferred_resolution_time %}
+
+                                        {{ complaint.preferred_resolution_time }}
+                                        Hours
+
+                                    {% elif complaint.resolution_hours %}
+
+                                        {{ complaint.resolution_hours }}
+                                        Hours
+
+                                    {% else %}
+
+                                        —
+
+                                    {% endif %}
+
+                                </td>
+
+
+                                <td>
+
+                                    {% set status_class =
+                                        complaint.status|lower
+                                        |replace(' ', '-')
+                                        |replace('_', '-')
+                                    %}
+
+                                    <span
+                                        class="status-badge status-{{ status_class }}"
+                                    >
+                                        {{ complaint.status|replace('_', ' ')|title }}
+                                    </span>
+
+                                </td>
+
+
+                                <td>
+
+                                    {% if complaint.created_at %}
+
+                                        {{ complaint.created_at.strftime('%d %b %Y') }}
+
+                                        <small class="table-subtext">
+
+                                            {{ complaint.created_at.strftime('%I:%M %p') }}
+
+                                        </small>
+
+                                    {% else %}
+
+                                        —
+
+                                    {% endif %}
+
+                                </td>
+
+
+                                <td>
+
+                                    <a
+                                        href="{{ url_for('resident.complaint_detail', complaint_id=complaint.id) }}"
+                                        class="table-action"
+                                    >
+                                        View Details
+                                    </a>
+
+                                </td>
+
+                            </tr>
+
+                        {% endfor %}
+
+                    </tbody>
+
+                </table>
+
+            </div>
+
+
+            <div class="information-note">
+
+                <span>
+                    i
+                </span>
+
+                <p>
+                    Complaint status is updated as the department
+                    processes your request. If a complaint remains
+                    unresolved after the selected 24 or 48-hour
+                    resolution period, the system can automatically
+                    escalate it for Senior Electricity Officer review.
+                </p>
+
+            </div>
+
+        {% else %}
+
+            <div class="empty-state">
+
+                <div class="empty-state-icon">
+                    📋
+                </div>
+
+                <h3>
+                    No Complaints Found
+                </h3>
+
+                <p>
+                    You have not submitted any electricity complaints
+                    yet. You can report a power cut, streetlight issue,
+                    electric pole damage, or voltage issue.
+                </p>
+
+                <a
+                    href="{{ url_for('resident.complaint_form') }}"
+                    class="btn btn-primary"
+                >
+                    Submit Your First Complaint
+                </a>
+
+            </div>
+
+        {% endif %}
+
+    </section>
+
+
+    <section class="dashboard-grid">
+
+
+        <div class="dashboard-main">
+
+            <div class="dashboard-card">
+
+                <div class="card-header">
+
+                    <div>
+
+                        <span class="section-label">
+                            Complaint Status
+                        </span>
+
+                        <h2>
+                            Understanding Your Complaint
+                        </h2>
+
+                    </div>
+
+                </div>
+
+
+                <div class="information-grid">
+
+                    <div class="information-card">
+
+                        <div class="information-card-icon">
+                            📝
+                        </div>
+
+                        <h3>
+                            Submitted
+                        </h3>
+
+                        <p>
+                            Your complaint has been recorded and is
+                            available for departmental processing.
+                        </p>
+
+                    </div>
+
+
+                    <div class="information-card">
+
+                        <div class="information-card-icon">
+                            ⚙
+                        </div>
+
+                        <h3>
+                            Processing
+                        </h3>
+
+                        <p>
+                            Department staff has accepted the complaint
+                            and is working on the reported issue.
+                        </p>
+
+                    </div>
+
+
+                    <div class="information-card">
+
+                        <div class="information-card-icon">
+                            ↑
+                        </div>
+
+                        <h3>
+                            Escalated
+                        </h3>
+
+                        <p>
+                            The complaint requires Senior Electricity
+                            Officer review because it was not resolved
+                            within the selected period.
+                        </p>
+
+                    </div>
+
+
+                    <div class="information-card">
+
+                        <div class="information-card-icon">
+                            ✓
+                        </div>
+
+                        <h3>
+                            Resolved
+                        </h3>
+
+                        <p>
+                            Department staff has completed the work
+                            and marked the complaint as resolved.
+                        </p>
+
+                    </div>
+
+                </div>
+
+            </div>
+
+        </div>
+
+
+        <aside class="dashboard-sidebar">
+
+
+            <div class="dashboard-card">
+
+                <div class="card-header">
+
+                    <div>
+
+                        <span class="section-label">
+                            Resident Services
+                        </span>
+
+                        <h2>
+                            Quick Access
+                        </h2>
+
+                    </div>
+
+                </div>
+
+
+                <div class="account-actions">
+
+                    <a
+                        href="{{ url_for('resident.complaint_form') }}"
+                        class="secondary-action"
+                    >
+
+                        <span>
+                            +
+                        </span>
+
+                        <span>
+                            New Complaint
+                        </span>
+
+                        <span>
+                            →
+                        </span>
+
+                    </a>
+
+
+                    <a
+                        href="{{ url_for('resident.history') }}"
+                        class="secondary-action"
+                    >
+
+                        <span>
+                            🕘
+                        </span>
+
+                        <span>
+                            Complaint History
+                        </span>
+
+                        <span>
+                            →
+                        </span>
+
+                    </a>
+
+
+                    <a
+                        href="{{ url_for('resident.predictions') }}"
+                        class="secondary-action"
+                    >
+
+                        <span>
+                            📊
+                        </span>
+
+                        <span>
+                            Power Cut Predictions
+                        </span>
+
+                        <span>
+                            →
+                        </span>
+
+                    </a>
+
+
+                    <a
+                        href="{{ url_for('resident.notifications') }}"
+                        class="secondary-action"
+                    >
+
+                        <span>
+                            🔔
+                        </span>
+
+                        <span>
+                            Notifications
+                        </span>
+
+                        <span>
+                            →
+                        </span>
+
+                    </a>
+
+                </div>
+
+            </div>
+
+
+            <div class="dashboard-card resolution-card">
+
+                <div class="card-header">
+
+                    <div>
+
+                        <span class="section-label">
+                            Resolution Period
+                        </span>
+
+                        <h2>
+                            24 or 48 Hours
+                        </h2>
+
+                    </div>
+
+                </div>
+
+
+                <p>
+                    Your selected resolution preference is associated
+                    with the complaint and is used by the system when
+                    determining its resolution deadline.
+                </p>
+
+
+                <div class="resolution-options">
+
+                    <div class="resolution-option">
+
+                        <strong>
+                            24 Hours
+                        </strong>
+
+                        <span>
+                            Shorter preferred resolution period
+                        </span>
+
+                    </div>
+
+
+                    <div class="resolution-option">
+
+                        <strong>
+                            48 Hours
+                        </strong>
+
+                        <span>
+                            Extended preferred resolution period
+                        </span>
+
+                    </div>
+
+                </div>
+
+
+                <div class="information-note">
+
+                    <span>
+                        i
+                    </span>
+
+                    <p>
+                        Unresolved complaints can be automatically
+                        escalated when their selected resolution
+                        period expires.
+                    </p>
+
+                </div>
+
+            </div>
+
+
+            <div class="dashboard-card">
+
+                <div class="card-header">
+
+                    <div>
+
+                        <span class="section-label">
+                            Notifications
+                        </span>
+
+                        <h2>
+                            Complaint Updates
+                        </h2>
+
+                    </div>
+
+                </div>
+
+                <p>
+                    Check your notifications for complaint status
+                    changes, resolution updates, and escalation
+                    information.
+                </p>
+
+                <a
+                    href="{{ url_for('resident.notifications') }}"
+                    class="text-link"
+                >
+                    View Notifications →
+                </a>
+
+            </div>
+
+        </aside>
+
+    </section>
+
+</section>
+
+{% endblock %}

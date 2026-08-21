@@ -1,0 +1,1022 @@
+{% extends "base.html" %}
+
+{% block title %}
+Power Cut Predictions | Smart Power Cut Prediction System
+{% endblock %}
+
+{% block content %}
+
+<section class="dashboard-page">
+
+    <div class="dashboard-header">
+
+        <div>
+            <span class="section-label">
+                Prediction Information
+            </span>
+
+            <h1>
+                Power Cut Predictions
+            </h1>
+
+            <p>
+                View available power cut prediction information for
+                your selected area based on complaint patterns recorded
+                by the system.
+            </p>
+        </div>
+
+        <div class="dashboard-header-actions">
+
+            <a
+                href="{{ url_for('resident.dashboard') }}"
+                class="btn btn-secondary"
+            >
+                ← Dashboard
+            </a>
+
+            <a
+                href="{{ url_for('resident.complaint_form') }}"
+                class="btn btn-primary"
+            >
+                + Submit Complaint
+            </a>
+
+        </div>
+
+    </div>
+
+
+    {% set prediction_items = predictions|default([]) %}
+
+
+    <section class="dashboard-summary">
+
+        <article class="summary-card">
+
+            <div class="summary-icon">
+                📊
+            </div>
+
+            <div class="summary-content">
+
+                <span class="summary-label">
+                    Available Predictions
+                </span>
+
+                <strong class="summary-value">
+                    {{ prediction_items|length }}
+                </strong>
+
+                <span class="summary-description">
+                    Stored prediction results
+                </span>
+
+            </div>
+
+        </article>
+
+
+        <article class="summary-card">
+
+            <div class="summary-icon">
+                ⚡
+            </div>
+
+            <div class="summary-content">
+
+                <span class="summary-label">
+                    Prediction Type
+                </span>
+
+                <strong class="summary-value">
+                    Power Cut
+                </strong>
+
+                <span class="summary-description">
+                    Complaint pattern analysis
+                </span>
+
+            </div>
+
+        </article>
+
+
+        <article class="summary-card">
+
+            <div class="summary-icon">
+                🌐
+            </div>
+
+            <div class="summary-content">
+
+                <span class="summary-label">
+                    Area Based
+                </span>
+
+                <strong class="summary-value">
+                    Yes
+                </strong>
+
+                <span class="summary-description">
+                    Selected complaint location
+                </span>
+
+            </div>
+
+        </article>
+
+
+        <article class="summary-card">
+
+            <div class="summary-icon">
+                    🔄
+            </div>
+
+            <div class="summary-content">
+
+                <span class="summary-label">
+                    Model
+                </span>
+
+                <strong class="summary-value">
+                    Random Forest
+                </strong>
+
+                <span class="summary-description">
+                    Prediction model
+                </span>
+
+            </div>
+
+        </article>
+
+    </section>
+
+
+    <section class="dashboard-card">
+
+        <div class="card-header">
+
+            <div>
+
+                <span class="section-label">
+                    Area Prediction
+                </span>
+
+                <h2>
+                    Check Power Cut Information
+                </h2>
+
+            </div>
+
+        </div>
+
+
+        <form
+            method="GET"
+            action="{{ url_for('resident.predictions') }}"
+            class="auth-form"
+        >
+
+            <div class="form-row">
+
+                <div class="form-group">
+
+                    <label for="location">
+                        Select or Enter Area
+                    </label>
+
+                    <input
+                        type="text"
+                        id="location"
+                        name="location"
+                        value="{{ selected_location|default(request.args.get('location', '')) }}"
+                        placeholder="Enter area or location"
+                    >
+
+                    <div class="field-help">
+                        Enter the area for which you want to view
+                        available power cut prediction information.
+                    </div>
+
+                </div>
+
+
+                <div class="form-group">
+
+                    <label for="prediction_date">
+                        Prediction Date
+                    </label>
+
+                    <input
+                        type="date"
+                        id="prediction_date"
+                        name="date"
+                        value="{{ selected_date|default(request.args.get('date', '')) }}"
+                    >
+
+                    <div class="field-help">
+                        Select a date when prediction data is available.
+                    </div>
+
+                </div>
+
+            </div>
+
+
+            <div class="form-actions">
+
+                <button
+                    type="submit"
+                    class="btn btn-primary"
+                >
+                    View Prediction
+                </button>
+
+                <a
+                    href="{{ url_for('resident.predictions') }}"
+                    class="btn btn-secondary"
+                >
+                    Clear
+                </a>
+
+            </div>
+
+        </form>
+
+    </section>
+
+
+    {% if prediction %}
+
+        <section class="dashboard-card">
+
+            <div class="card-header">
+
+                <div>
+
+                    <span class="section-label">
+                        Prediction Result
+                    </span>
+
+                    <h2>
+                        Power Cut Prediction
+                    </h2>
+
+                </div>
+
+                {% if prediction.prediction is defined %}
+
+                    {% set prediction_value =
+                        prediction.prediction|string|lower
+                    %}
+
+                    {% if prediction_value in ['1', 'true', 'yes', 'likely', 'high'] %}
+
+                        <span class="status-badge status-warning">
+                            Possible Power Cut
+                        </span>
+
+                    {% else %}
+
+                        <span class="status-badge status-active">
+                            Lower Risk
+                        </span>
+
+                    {% endif %}
+
+                {% endif %}
+
+            </div>
+
+
+            <div class="details-grid">
+
+                <div class="detail-item">
+
+                    <span class="detail-label">
+                        Location
+                    </span>
+
+                    <strong>
+                        {{ prediction.location|default(selected_location|default('—')) }}
+                    </strong>
+
+                </div>
+
+
+                <div class="detail-item">
+
+                    <span class="detail-label">
+                        Prediction Date
+                    </span>
+
+                    <strong>
+                        {{ prediction.prediction_date|default(prediction.date|default(selected_date|default('—'))) }}
+                    </strong>
+
+                </div>
+
+
+                <div class="detail-item">
+
+                    <span class="detail-label">
+                        Prediction
+                    </span>
+
+                    <strong>
+
+                        {% if prediction.prediction is defined %}
+
+                            {{ prediction.prediction|replace('_', ' ')|title }}
+
+                        {% elif prediction.result is defined %}
+
+                            {{ prediction.result|replace('_', ' ')|title }}
+
+                        {% else %}
+
+                            Not Available
+
+                        {% endif %}
+
+                    </strong>
+
+                </div>
+
+
+                <div class="detail-item">
+
+                    <span class="detail-label">
+                        Probability
+                    </span>
+
+                    <strong>
+
+                        {% if prediction.probability is defined and prediction.probability is not none %}
+
+                            {{ "%.2f"|format(prediction.probability * 100) }}%
+
+                        {% elif prediction.prediction_probability is defined and prediction.prediction_probability is not none %}
+
+                            {{ "%.2f"|format(prediction.prediction_probability * 100) }}%
+
+                        {% else %}
+
+                            Not Available
+
+                        {% endif %}
+
+                    </strong>
+
+                </div>
+
+
+                <div class="detail-item">
+
+                    <span class="detail-label">
+                        Model
+                    </span>
+
+                    <strong>
+                        Random Forest
+                    </strong>
+
+                </div>
+
+
+                <div class="detail-item">
+
+                    <span class="detail-label">
+                        Generated On
+                    </span>
+
+                    <strong>
+
+                        {% if prediction.created_at %}
+
+                            {{ prediction.created_at.strftime('%d %b %Y, %I:%M %p') }}
+
+                        {% elif prediction.predicted_at %}
+
+                            {{ prediction.predicted_at.strftime('%d %b %Y, %I:%M %p') }}
+
+                        {% else %}
+
+                            —
+
+                        {% endif %}
+
+                    </strong>
+
+                </div>
+
+            </div>
+
+
+            <div class="information-note">
+
+                <span>
+                    i
+                </span>
+
+                <p>
+                    Prediction results are generated from complaint
+                    patterns available to the system. They indicate
+                    a possible power cut based on the available
+                    prediction data and should not be treated as a
+                    guaranteed outage schedule.
+                </p>
+
+            </div>
+
+        </section>
+
+    {% endif %}
+
+
+    <section class="dashboard-card">
+
+        <div class="card-header">
+
+            <div>
+
+                <span class="section-label">
+                    Stored Prediction Results
+                </span>
+
+                <h2>
+                    Available Area Predictions
+                </h2>
+
+            </div>
+
+            {% if prediction_items %}
+
+                <span class="record-count">
+                    {{ prediction_items|length }}
+                    record{% if prediction_items|length != 1 %}s{% endif %}
+                </span>
+
+            {% endif %}
+
+        </div>
+
+
+        {% if prediction_items %}
+
+            <div class="complaint-table-wrapper">
+
+                <table class="data-table">
+
+                    <thead>
+
+                        <tr>
+
+                            <th>
+                                Location
+                            </th>
+
+                            <th>
+                                Date
+                            </th>
+
+                            <th>
+                                Prediction
+                            </th>
+
+                            <th>
+                                Probability
+                            </th>
+
+                            <th>
+                                Generated
+                            </th>
+
+                            <th>
+                                Details
+                            </th>
+
+                        </tr>
+
+                    </thead>
+
+
+                    <tbody>
+
+                        {% for item in prediction_items %}
+
+                            <tr>
+
+                                <td>
+
+                                    <strong>
+                                        {{ item.location|default('—') }}
+                                    </strong>
+
+                                </td>
+
+
+                                <td>
+                                    {{ item.prediction_date|default(item.date|default('—')) }}
+                                </td>
+
+
+                                <td>
+
+                                    {% set item_prediction =
+                                        item.prediction|default(item.result|default(''))
+                                        |string
+                                        |lower
+                                    %}
+
+                                    {% if item_prediction in ['1', 'true', 'yes', 'likely', 'high'] %}
+
+                                        <span class="status-badge status-warning">
+                                            Possible Power Cut
+                                        </span>
+
+                                    {% elif item_prediction %}
+
+                                        <span class="status-badge status-active">
+                                            {{ item_prediction|replace('_', ' ')|title }}
+                                        </span>
+
+                                    {% else %}
+
+                                        <span class="muted-text">
+                                            —
+                                        </span>
+
+                                    {% endif %}
+
+                                </td>
+
+
+                                <td>
+
+                                    {% if item.probability is defined and item.probability is not none %}
+
+                                        {{ "%.2f"|format(item.probability * 100) }}%
+
+                                    {% elif item.prediction_probability is defined and item.prediction_probability is not none %}
+
+                                        {{ "%.2f"|format(item.prediction_probability * 100) }}%
+
+                                    {% else %}
+
+                                        —
+
+                                    {% endif %}
+
+                                </td>
+
+
+                                <td>
+
+                                    {% if item.created_at %}
+
+                                        {{ item.created_at.strftime('%d %b %Y') }}
+
+                                    {% elif item.predicted_at %}
+
+                                        {{ item.predicted_at.strftime('%d %b %Y') }}
+
+                                    {% else %}
+
+                                        —
+
+                                    {% endif %}
+
+                                </td>
+
+
+                                <td>
+
+                                    {% if item.id %}
+
+                                        <a
+                                            href="{{ url_for('resident.predictions', prediction_id=item.id) }}"
+                                            class="table-action"
+                                        >
+                                            View
+                                        </a>
+
+                                    {% else %}
+
+                                        <span class="muted-text">
+                                            —
+                                        </span>
+
+                                    {% endif %}
+
+                                </td>
+
+                            </tr>
+
+                        {% endfor %}
+
+                    </tbody>
+
+                </table>
+
+            </div>
+
+        {% else %}
+
+            <div class="empty-state">
+
+                <div class="empty-state-icon">
+                    📊
+                </div>
+
+                <h3>
+                    No Prediction Information Available
+                </h3>
+
+                <p>
+                    Prediction results will appear here when the system
+                    has sufficient complaint data and a trained Random
+                    Forest model has generated prediction results.
+                </p>
+
+                <a
+                    href="{{ url_for('resident.complaint_form') }}"
+                    class="btn btn-primary"
+                >
+                    Submit Complaint
+                </a>
+
+            </div>
+
+        {% endif %}
+
+    </section>
+
+
+    <section class="dashboard-grid">
+
+        <div class="dashboard-main">
+
+            <div class="dashboard-card">
+
+                <div class="card-header">
+
+                    <div>
+
+                        <span class="section-label">
+                            Prediction Process
+                        </span>
+
+                        <h2>
+                            How Prediction Information Is Generated
+                        </h2>
+
+                    </div>
+
+                </div>
+
+
+                <div class="information-grid">
+
+                    <div class="information-card">
+
+                        <div class="information-card-icon">
+                            📋
+                        </div>
+
+                        <h3>
+                            Complaint Data
+                        </h3>
+
+                        <p>
+                            The system builds the complaint dataset
+                            using administrator-uploaded sample records
+                            together with complaints submitted by
+                            residents.
+                        </p>
+
+                    </div>
+
+
+                    <div class="information-card">
+
+                        <div class="information-card-icon">
+                            ⚙
+                        </div>
+
+                        <h3>
+                            Data Preparation
+                        </h3>
+
+                        <p>
+                            Available complaint records are prepared
+                            and divided into training and testing data
+                            before model evaluation.
+                        </p>
+
+                    </div>
+
+
+                    <div class="information-card">
+
+                        <div class="information-card-icon">
+                            🔄
+                        </div>
+
+                        <h3>
+                            Random Forest
+                        </h3>
+
+                        <p>
+                            The Random Forest model is trained using
+                            the training data and evaluated against
+                            the testing data.
+                        </p>
+
+                    </div>
+
+
+                    <div class="information-card">
+
+                        <div class="information-card-icon">
+                            📊
+                        </div>
+
+                        <h3>
+                            Prediction Result
+                        </h3>
+
+                        <p>
+                            The trained model is used to identify
+                            possible power cut patterns for available
+                            complaint information.
+                        </p>
+
+                    </div>
+
+                </div>
+
+            </div>
+
+
+            <div class="dashboard-card">
+
+                <div class="card-header">
+
+                    <div>
+
+                        <span class="section-label">
+                            Data Updates
+                        </span>
+
+                        <h2>
+                            Prediction Model Updates
+                        </h2>
+
+                    </div>
+
+                </div>
+
+
+                <div class="information-note">
+
+                    <span>
+                        i
+                    </span>
+
+                    <p>
+                        As new complaint information becomes available,
+                        the system can use the expanded complaint
+                        dataset for future model training and analysis.
+                        Prediction results are stored for future
+                        reference and analysis.
+                    </p>
+
+                </div>
+
+            </div>
+
+        </div>
+
+
+        <aside class="dashboard-sidebar">
+
+
+            <div class="dashboard-card">
+
+                <div class="card-header">
+
+                    <div>
+
+                        <span class="section-label">
+                            Prediction Guide
+                        </span>
+
+                        <h2>
+                            Reading the Results
+                        </h2>
+
+                    </div>
+
+                </div>
+
+
+                <div class="account-actions">
+
+                    <div class="secondary-action">
+
+                        <span>
+                            ⚡
+                        </span>
+
+                        <span>
+                            Possible power cut
+                        </span>
+
+                    </div>
+
+
+                    <div class="secondary-action">
+
+                        <span>
+                            📍
+                        </span>
+
+                        <span>
+                            Area-specific information
+                        </span>
+
+                    </div>
+
+
+                    <div class="secondary-action">
+
+                        <span>
+                            📊
+                        </span>
+
+                        <span>
+                            Prediction probability
+                        </span>
+
+                    </div>
+
+
+                    <div class="secondary-action">
+
+                        <span>
+                            🔄
+                        </span>
+
+                        <span>
+                            Model-based result
+                        </span>
+
+                    </div>
+
+                </div>
+
+            </div>
+
+
+            <div class="dashboard-card">
+
+                <div class="card-header">
+
+                    <div>
+
+                        <span class="section-label">
+                            Resident Services
+                        </span>
+
+                        <h2>
+                            Quick Access
+                        </h2>
+
+                    </div>
+
+                </div>
+
+
+                <div class="account-actions">
+
+                    <a
+                        href="{{ url_for('resident.dashboard') }}"
+                        class="secondary-action"
+                    >
+
+                        <span>
+                            ⚡
+                        </span>
+
+                        <span>
+                            Resident Dashboard
+                        </span>
+
+                        <span>
+                            →
+                        </span>
+
+                    </a>
+
+
+                    <a
+                        href="{{ url_for('resident.complaints') }}"
+                        class="secondary-action"
+                    >
+
+                        <span>
+                            📋
+                        </span>
+
+                        <span>
+                            My Complaints
+                        </span>
+
+                        <span>
+                            →
+                        </span>
+
+                    </a>
+
+
+                    <a
+                        href="{{ url_for('resident.history') }}"
+                        class="secondary-action"
+                    >
+
+                        <span>
+                            🕘
+                        </span>
+
+                        <span>
+                            Complaint History
+                        </span>
+
+                        <span>
+                            →
+                        </span>
+
+                    </a>
+
+
+                    <a
+                        href="{{ url_for('resident.notifications') }}"
+                        class="secondary-action"
+                    >
+
+                        <span>
+                            🔔
+                        </span>
+
+                        <span>
+                            Notifications
+                        </span>
+
+                        <span>
+                            →
+                        </span>
+
+                    </a>
+
+                </div>
+
+            </div>
+
+
+            <div class="dashboard-card">
+
+                <div class="card-header">
+
+                    <div>
+
+                        <span class="section-label">
+                            Important
+                        </span>
+
+                        <h2>
+                            Prediction Information
+                        </h2>
+
+                    </div>
+
+                </div>
+
+                <p>
+                    Prediction results are based on complaint patterns
+                    available to the system. A prediction represents a
+                    possible power cut pattern and is not a guaranteed
+                    electricity outage schedule.
+                </p>
+
+            </div>
+
+        </aside>
+
+    </section>
+
+</section>
+
+{% endblock %}
