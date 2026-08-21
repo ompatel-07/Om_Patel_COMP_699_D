@@ -1,0 +1,802 @@
+{% extends "base.html" %}
+
+{% block title %}
+Location Complaint History | Smart Power Cut Prediction System
+{% endblock %}
+
+{% block content %}
+
+<section class="dashboard-page">
+
+    {% set history_items = complaints|default(location_history|default([])) %}
+
+    <div class="dashboard-header">
+
+        <div>
+            <span class="section-label">
+                Electricity Department Staff
+            </span>
+
+            <h1>
+                Location Complaint History
+            </h1>
+
+            <p>
+                Review previous electricity complaints reported for a
+                specific location to identify recurring service issues
+                and support complaint processing.
+            </p>
+        </div>
+
+        <div class="dashboard-header-actions">
+
+            <a
+                href="{{ url_for('staff.dashboard') }}"
+                class="btn btn-secondary"
+            >
+                ← Staff Dashboard
+            </a>
+
+        </div>
+
+    </div>
+
+
+    <!-- SEARCH LOCATION -->
+
+    <section class="dashboard-card">
+
+        <div class="card-header">
+
+            <div>
+                <span class="section-label">
+                    Location Search
+                </span>
+
+                <h2>
+                    Find Complaint History
+                </h2>
+            </div>
+
+        </div>
+
+
+        <form
+            method="GET"
+            action="{{ url_for('staff.location_history') }}"
+            class="auth-form"
+        >
+
+            <div class="form-row">
+
+                <div class="form-group">
+
+                    <label for="location">
+                        Complaint Location
+                    </label>
+
+                    <input
+                        type="text"
+                        id="location"
+                        name="location"
+                        value="{{ location|default(request.args.get('location', '')) }}"
+                        placeholder="Enter the location to search"
+                        required
+                    >
+
+                    <div class="field-help">
+                        Enter the location associated with the
+                        complaints you want to review.
+                    </div>
+
+                </div>
+
+
+                <div class="form-group form-group-action">
+
+                    <label>
+                        &nbsp;
+                    </label>
+
+                    <button
+                        type="submit"
+                        class="btn btn-primary"
+                    >
+                        Search History
+                    </button>
+
+                </div>
+
+            </div>
+
+        </form>
+
+    </section>
+
+
+    {% if location or request.args.get('location') %}
+
+        <section class="dashboard-card">
+
+            <div class="card-header">
+
+                <div>
+
+                    <span class="section-label">
+                        Selected Location
+                    </span>
+
+                    <h2>
+                        {{ location|default(request.args.get('location')) }}
+                    </h2>
+
+                </div>
+
+
+                {% if history_items %}
+
+                    <span class="record-count">
+                        {{ history_items|length }}
+                        record{% if history_items|length != 1 %}s{% endif %}
+                    </span>
+
+                {% endif %}
+
+            </div>
+
+
+            <div class="information-note">
+
+                <span>
+                    📍
+                </span>
+
+                <p>
+                    The records below show complaint history associated
+                    with the selected location. Use this information
+                    when reviewing current or recurring electricity
+                    service issues.
+                </p>
+
+            </div>
+
+        </section>
+
+
+        <!-- LOCATION SUMMARY -->
+
+        <section class="dashboard-summary">
+
+            <article class="summary-card">
+
+                <div class="summary-icon">
+                    📋
+                </div>
+
+                <div class="summary-content">
+
+                    <span class="summary-label">
+                        Total Complaints
+                    </span>
+
+                    <strong class="summary-value">
+                        {{ history_items|length }}
+                    </strong>
+
+                    <span class="summary-description">
+                        Complaints reported at this location
+                    </span>
+
+                </div>
+
+            </article>
+
+
+            <article class="summary-card">
+
+                <div class="summary-icon">
+                    ✓
+                </div>
+
+                <div class="summary-content">
+
+                    <span class="summary-label">
+                        Resolved
+                    </span>
+
+                    <strong class="summary-value">
+                        {{ resolved_count|default(0) }}
+                    </strong>
+
+                    <span class="summary-description">
+                        Completed service requests
+                    </span>
+
+                </div>
+
+            </article>
+
+
+            <article class="summary-card">
+
+                <div class="summary-icon">
+                    ⚙
+                </div>
+
+                <div class="summary-content">
+
+                    <span class="summary-label">
+                        In Progress
+                    </span>
+
+                    <strong class="summary-value">
+                        {{ in_progress_count|default(0) }}
+                    </strong>
+
+                    <span class="summary-description">
+                        Complaints currently being processed
+                    </span>
+
+                </div>
+
+            </article>
+
+
+            <article class="summary-card">
+
+                <div class="summary-icon">
+                    ↑
+                </div>
+
+                <div class="summary-content">
+
+                    <span class="summary-label">
+                        Escalated
+                    </span>
+
+                    <strong class="summary-value">
+                        {{ escalated_count|default(0) }}
+                    </strong>
+
+                    <span class="summary-description">
+                        Complaints requiring escalation review
+                    </span>
+
+                </div>
+
+            </article>
+
+        </section>
+
+
+        <!-- HISTORY TABLE -->
+
+        <section class="dashboard-card">
+
+            <div class="card-header">
+
+                <div>
+
+                    <span class="section-label">
+                        Complaint Records
+                    </span>
+
+                    <h2>
+                        Previous Complaints
+                    </h2>
+
+                </div>
+
+            </div>
+
+
+            {% if history_items %}
+
+                <div class="complaint-table-wrapper">
+
+                    <table class="data-table">
+
+                        <thead>
+
+                            <tr>
+
+                                <th>
+                                    Complaint
+                                </th>
+
+                                <th>
+                                    Type
+                                </th>
+
+                                <th>
+                                    Reported
+                                </th>
+
+                                <th>
+                                    Priority
+                                </th>
+
+                                <th>
+                                    Resolution Period
+                                </th>
+
+                                <th>
+                                    Status
+                                </th>
+
+                                <th>
+                                    Action
+                                </th>
+
+                            </tr>
+
+                        </thead>
+
+
+                        <tbody>
+
+                            {% for complaint in history_items %}
+
+                                {% set complaint_status =
+                                    complaint.status|default('Unknown')
+                                    |lower
+                                    |replace(' ', '-')
+                                    |replace('_', '-')
+                                %}
+
+                                {% set complaint_priority =
+                                    complaint.priority|default('')
+                                    |lower
+                                    |replace(' ', '-')
+                                    |replace('_', '-')
+                                %}
+
+
+                                <tr>
+
+                                    <td>
+
+                                        <strong>
+                                            {{ complaint.complaint_number|default(complaint.id|default('—')) }}
+                                        </strong>
+
+                                        {% if complaint.created_at %}
+
+                                            <small class="table-subtext">
+
+                                                {% if complaint.created_at.strftime is defined %}
+
+                                                    Submitted
+                                                    {{ complaint.created_at.strftime('%d %b %Y') }}
+
+                                                {% else %}
+
+                                                    {{ complaint.created_at }}
+
+                                                {% endif %}
+
+                                            </small>
+
+                                        {% endif %}
+
+                                    </td>
+
+
+                                    <td>
+                                        {{ complaint.complaint_type|default('—')|replace('_', ' ')|title }}
+                                    </td>
+
+
+                                    <td>
+
+                                        {% if complaint.complaint_date %}
+
+                                            {{ complaint.complaint_date }}
+
+                                        {% elif complaint.reported_date %}
+
+                                            {{ complaint.reported_date }}
+
+                                        {% elif complaint.created_at and complaint.created_at.strftime is defined %}
+
+                                            {{ complaint.created_at.strftime('%d %b %Y') }}
+
+                                        {% else %}
+
+                                            —
+
+                                        {% endif %}
+
+                                    </td>
+
+
+                                    <td>
+
+                                        {% if complaint.priority %}
+
+                                            <span
+                                                class="status-badge priority-{{ complaint_priority }}"
+                                            >
+                                                {{ complaint.priority|replace('_', ' ')|title }}
+                                            </span>
+
+                                        {% else %}
+
+                                            <span class="muted-text">
+                                                —
+                                            </span>
+
+                                        {% endif %}
+
+                                    </td>
+
+
+                                    <td>
+
+                                        {% if complaint.preferred_resolution_time %}
+
+                                            {{ complaint.preferred_resolution_time }}
+                                            Hours
+
+                                        {% elif complaint.resolution_hours %}
+
+                                            {{ complaint.resolution_hours }}
+                                            Hours
+
+                                        {% else %}
+
+                                            —
+
+                                        {% endif %}
+
+                                    </td>
+
+
+                                    <td>
+
+                                        <span
+                                            class="status-badge status-{{ complaint_status }}"
+                                        >
+                                            {{ complaint.status|default('Unknown')|replace('_', ' ')|title }}
+                                        </span>
+
+                                    </td>
+
+
+                                    <td>
+
+                                        {% if complaint.id %}
+
+                                            <a
+                                                href="{{ url_for('staff.complaint_detail', complaint_id=complaint.id) }}"
+                                                class="table-action"
+                                            >
+                                                View
+                                            </a>
+
+                                        {% else %}
+
+                                            <span class="muted-text">
+                                                —
+                                            </span>
+
+                                        {% endif %}
+
+                                    </td>
+
+                                </tr>
+
+                            {% endfor %}
+
+                        </tbody>
+
+                    </table>
+
+                </div>
+
+            {% else %}
+
+                <div class="empty-state">
+
+                    <div class="empty-state-icon">
+                        📍
+                    </div>
+
+                    <h3>
+                        No Previous Complaints Found
+                    </h3>
+
+                    <p>
+                        No complaint records were found for this
+                        location. Check the location spelling and try
+                        another search.
+                    </p>
+
+                </div>
+
+            {% endif %}
+
+        </section>
+
+
+        <!-- LOCATION ANALYSIS -->
+
+        {% if history_items %}
+
+            <section class="dashboard-grid">
+
+                <div class="dashboard-main">
+
+                    <section class="dashboard-card">
+
+                        <div class="card-header">
+
+                            <div>
+
+                                <span class="section-label">
+                                    Location Review
+                                </span>
+
+                                <h2>
+                                    Recurring Issue Information
+                                </h2>
+
+                            </div>
+
+                        </div>
+
+
+                        <div class="information-grid">
+
+                            <div class="information-card">
+
+                                <div class="information-card-icon">
+                                    ⚡
+                                </div>
+
+                                <h3>
+                                    Power Cut Complaints
+                                </h3>
+
+                                <p>
+                                    Review repeated power-cut complaints
+                                    reported from this location when
+                                    assessing recurring electricity
+                                    service problems.
+                                </p>
+
+                            </div>
+
+
+                            <div class="information-card">
+
+                                <div class="information-card-icon">
+                                    💡
+                                </div>
+
+                                <h3>
+                                    Streetlight Complaints
+                                </h3>
+
+                                <p>
+                                    Check previous streetlight issues
+                                    reported for the selected location.
+                                </p>
+
+                            </div>
+
+
+                            <div class="information-card">
+
+                                <div class="information-card-icon">
+                                    ⚠
+                                </div>
+
+                                <h3>
+                                    Pole Damage
+                                </h3>
+
+                                <p>
+                                    Review earlier electric pole damage
+                                    complaints associated with the area.
+                                </p>
+
+                            </div>
+
+
+                            <div class="information-card">
+
+                                <div class="information-card-icon">
+                                    ↕
+                                </div>
+
+                                <h3>
+                                    Voltage Issues
+                                </h3>
+
+                                <p>
+                                    Identify previous voltage-related
+                                    complaints recorded for the
+                                    location.
+                                </p>
+
+                            </div>
+
+                        </div>
+
+                    </section>
+
+
+                    <section class="dashboard-card">
+
+                        <div class="card-header">
+
+                            <div>
+
+                                <span class="section-label">
+                                    Staff Guidance
+                                </span>
+
+                                <h2>
+                                    Use Location History
+                                </h2>
+
+                            </div>
+
+                        </div>
+
+
+                        <div class="information-note">
+
+                            <span>
+                                i
+                            </span>
+
+                            <p>
+                                Location history provides previous
+                                complaint information that can support
+                                staff while processing a current
+                                complaint. Review recurring issue types,
+                                previous statuses, priority, and
+                                resolution records before completing
+                                service work.
+                            </p>
+
+                        </div>
+
+                    </section>
+
+                </div>
+
+
+                <aside class="dashboard-sidebar">
+
+
+                    <section class="dashboard-card">
+
+                        <div class="card-header">
+
+                            <div>
+
+                                <span class="section-label">
+                                    Staff Navigation
+                                </span>
+
+                                <h2>
+                                    Quick Access
+                                </h2>
+
+                            </div>
+
+                        </div>
+
+
+                        <div class="account-actions">
+
+                            <a
+                                href="{{ url_for('staff.dashboard') }}"
+                                class="secondary-action"
+                            >
+
+                                <span>
+                                    📋
+                                </span>
+
+                                <span>
+                                    Assigned Complaints
+                                </span>
+
+                                <span>
+                                    →
+                                </span>
+
+                            </a>
+
+
+                            <a
+                                href="{{ url_for('staff.location_history') }}"
+                                class="secondary-action"
+                            >
+
+                                <span>
+                                    📍
+                                </span>
+
+                                <span>
+                                    Location History
+                                </span>
+
+                                <span>
+                                    →
+                                </span>
+
+                            </a>
+
+                        </div>
+
+                    </section>
+
+
+                    <section class="dashboard-card">
+
+                        <div class="card-header">
+
+                            <div>
+
+                                <span class="section-label">
+                                    Processing Reminder
+                                </span>
+
+                                <h2>
+                                    Resolution Period
+                                </h2>
+
+                            </div>
+
+                        </div>
+
+                        <p>
+                            Resident complaints contain a preferred
+                            resolution period of 24 or 48 hours.
+                            Unresolved complaints may be automatically
+                            escalated after the applicable period.
+                        </p>
+
+                    </section>
+
+                </aside>
+
+            </section>
+
+        {% endif %}
+
+    {% else %}
+
+        <!-- INITIAL PAGE STATE -->
+
+        <section class="dashboard-card">
+
+            <div class="empty-state">
+
+                <div class="empty-state-icon">
+                    📍
+                </div>
+
+                <h3>
+                    Search a Complaint Location
+                </h3>
+
+                <p>
+                    Enter a complaint location above to view previous
+                    complaint records associated with that location.
+                </p>
+
+            </div>
+
+        </section>
+
+    {% endif %}
+
+</section>
+
+{% endblock %}

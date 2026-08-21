@@ -1,0 +1,1353 @@
+{% extends "base.html" %}
+
+{% block title %}
+Complaint Details | Smart Power Cut Prediction System
+{% endblock %}
+
+{% block content %}
+
+<section class="dashboard-page">
+
+    {% set item = complaint|default(None) %}
+
+    {% if item %}
+
+        {% set current_status =
+            item.status|default('Assigned')
+            |lower
+            |replace(' ', '-')
+            |replace('_', '-')
+        %}
+
+        {% set current_priority =
+            item.priority|default('')
+            |lower
+            |replace(' ', '-')
+            |replace('_', '-')
+        %}
+
+
+        <!-- PAGE HEADER -->
+
+        <div class="dashboard-header">
+
+            <div>
+
+                <span class="section-label">
+                    Electricity Department Staff
+                </span>
+
+                <h1>
+                    Complaint Details
+                </h1>
+
+                <p>
+                    Review the complaint information, process the
+                    assigned service request, update its status, record
+                    repair notes, and resolve the complaint after work
+                    is completed.
+                </p>
+
+            </div>
+
+
+            <div class="dashboard-header-actions">
+
+                <a
+                    href="{{ url_for('staff.dashboard') }}"
+                    class="btn btn-secondary"
+                >
+                    ← Assigned Complaints
+                </a>
+
+                <a
+                    href="{{ url_for('staff.location_history') }}"
+                    class="btn btn-secondary"
+                >
+                    Location History
+                </a>
+
+            </div>
+
+        </div>
+
+
+        <!-- COMPLAINT STATUS HEADER -->
+
+        <section class="dashboard-card">
+
+            <div class="card-header">
+
+                <div>
+
+                    <span class="section-label">
+                        Complaint
+                    </span>
+
+                    <h2>
+                        {{ item.complaint_number|default('Complaint #' ~ item.id) }}
+                    </h2>
+
+                </div>
+
+
+                <div class="dashboard-header-actions">
+
+                    <span
+                        class="status-badge status-{{ current_status }}"
+                    >
+                        {{ item.status|default('Assigned')|replace('_', ' ')|title }}
+                    </span>
+
+
+                    {% if item.priority %}
+
+                        <span
+                            class="status-badge priority-{{ current_priority }}"
+                        >
+                            {{ item.priority|replace('_', ' ')|title }} Priority
+                        </span>
+
+                    {% endif %}
+
+                </div>
+
+            </div>
+
+
+            <div class="details-grid">
+
+                <div class="detail-item">
+
+                    <span class="detail-label">
+                        Complaint Type
+                    </span>
+
+                    <strong>
+                        {{ item.complaint_type|default('—')|replace('_', ' ')|title }}
+                    </strong>
+
+                </div>
+
+
+                <div class="detail-item">
+
+                    <span class="detail-label">
+                        Complaint ID
+                    </span>
+
+                    <strong>
+                        {{ item.complaint_number|default(item.id|default('—')) }}
+                    </strong>
+
+                </div>
+
+
+                <div class="detail-item">
+
+                    <span class="detail-label">
+                        Priority
+                    </span>
+
+                    <strong>
+                        {{ item.priority|default('Not assigned')|replace('_', ' ')|title }}
+                    </strong>
+
+                </div>
+
+
+                <div class="detail-item">
+
+                    <span class="detail-label">
+                        Resolution Preference
+                    </span>
+
+                    <strong>
+
+                        {% if item.preferred_resolution_time %}
+
+                            {{ item.preferred_resolution_time }} Hours
+
+                        {% elif item.resolution_hours %}
+
+                            {{ item.resolution_hours }} Hours
+
+                        {% else %}
+
+                            Not specified
+
+                        {% endif %}
+
+                    </strong>
+
+                </div>
+
+
+                <div class="detail-item">
+
+                    <span class="detail-label">
+                        Reported Date
+                    </span>
+
+                    <strong>
+
+                        {% if item.complaint_date %}
+
+                            {{ item.complaint_date }}
+
+                        {% elif item.reported_date %}
+
+                            {{ item.reported_date }}
+
+                        {% else %}
+
+                            —
+
+                        {% endif %}
+
+                    </strong>
+
+                </div>
+
+
+                <div class="detail-item">
+
+                    <span class="detail-label">
+                        Reported Time
+                    </span>
+
+                    <strong>
+                        {{ item.complaint_time|default(item.reported_time|default('—')) }}
+                    </strong>
+
+                </div>
+
+
+                <div class="detail-item">
+
+                    <span class="detail-label">
+                        Submitted On
+                    </span>
+
+                    <strong>
+
+                        {% if item.created_at %}
+
+                            {% if item.created_at.strftime is defined %}
+
+                                {{ item.created_at.strftime('%d %b %Y, %I:%M %p') }}
+
+                            {% else %}
+
+                                {{ item.created_at }}
+
+                            {% endif %}
+
+                        {% else %}
+
+                            —
+
+                        {% endif %}
+
+                    </strong>
+
+                </div>
+
+
+                <div class="detail-item">
+
+                    <span class="detail-label">
+                        Assigned Staff
+                    </span>
+
+                    <strong>
+
+                        {% if item.assigned_staff %}
+
+                            {{ item.assigned_staff.name|default(item.assigned_staff.username|default('Assigned Staff')) }}
+
+                        {% elif item.staff %}
+
+                            {{ item.staff.name|default(item.staff.username|default('Assigned Staff')) }}
+
+                        {% else %}
+
+                            Current Staff
+
+                        {% endif %}
+
+                    </strong>
+
+                </div>
+
+            </div>
+
+        </section>
+
+
+        <!-- RESIDENT INFORMATION -->
+
+        <section class="dashboard-grid">
+
+            <div class="dashboard-main">
+
+                <section class="dashboard-card">
+
+                    <div class="card-header">
+
+                        <div>
+
+                            <span class="section-label">
+                                Resident Information
+                            </span>
+
+                            <h2>
+                                Complaint Reporter
+                            </h2>
+
+                        </div>
+
+                    </div>
+
+
+                    <div class="details-grid">
+
+                        <div class="detail-item">
+
+                            <span class="detail-label">
+                                Resident Name
+                            </span>
+
+                            <strong>
+
+                                {% if item.resident %}
+
+                                    {{ item.resident.full_name|default(item.resident.name|default(item.resident.username|default('Resident'))) }}
+
+                                {% elif item.user %}
+
+                                    {{ item.user.full_name|default(item.user.name|default(item.user.username|default('Resident'))) }}
+
+                                {% else %}
+
+                                    Resident
+
+                                {% endif %}
+
+                            </strong>
+
+                        </div>
+
+
+                        <div class="detail-item">
+
+                            <span class="detail-label">
+                                Email
+                            </span>
+
+                            <strong>
+
+                                {% if item.resident %}
+
+                                    {{ item.resident.email|default('—') }}
+
+                                {% elif item.user %}
+
+                                    {{ item.user.email|default('—') }}
+
+                                {% else %}
+
+                                    —
+
+                                {% endif %}
+
+                            </strong>
+
+                        </div>
+
+
+                        <div class="detail-item">
+
+                            <span class="detail-label">
+                                Phone
+                            </span>
+
+                            <strong>
+
+                                {% if item.resident %}
+
+                                    {{ item.resident.phone|default('—') }}
+
+                                {% elif item.user %}
+
+                                    {{ item.user.phone|default('—') }}
+
+                                {% else %}
+
+                                    —
+
+                                {% endif %}
+
+                            </strong>
+
+                        </div>
+
+
+                        <div class="detail-item">
+
+                            <span class="detail-label">
+                                Resident Account
+                            </span>
+
+                            <strong>
+                                Public Resident
+                            </strong>
+
+                        </div>
+
+                    </div>
+
+                </section>
+
+
+                <!-- LOCATION -->
+
+                <section class="dashboard-card">
+
+                    <div class="card-header">
+
+                        <div>
+
+                            <span class="section-label">
+                                Service Location
+                            </span>
+
+                            <h2>
+                                Complaint Location
+                            </h2>
+
+                        </div>
+
+                        <a
+                            href="{{ url_for('staff.location_history', location=item.location) }}"
+                            class="btn btn-secondary"
+                        >
+                            View Location History
+                        </a>
+
+                    </div>
+
+
+                    <div class="information-note">
+
+                        <span>
+                            📍
+                        </span>
+
+                        <p>
+                            <strong>
+                                {{ item.location|default('Location not provided') }}
+                            </strong>
+
+                            {% if item.address %}
+                                <br>
+                                {{ item.address }}
+                            {% endif %}
+                        </p>
+
+                    </div>
+
+
+                    {% if item.latitude or item.longitude %}
+
+                        <div class="details-grid">
+
+                            {% if item.latitude %}
+
+                                <div class="detail-item">
+
+                                    <span class="detail-label">
+                                        Latitude
+                                    </span>
+
+                                    <strong>
+                                        {{ item.latitude }}
+                                    </strong>
+
+                                </div>
+
+                            {% endif %}
+
+
+                            {% if item.longitude %}
+
+                                <div class="detail-item">
+
+                                    <span class="detail-label">
+                                        Longitude
+                                    </span>
+
+                                    <strong>
+                                        {{ item.longitude }}
+                                    </strong>
+
+                                </div>
+
+                            {% endif %}
+
+                        </div>
+
+                    {% endif %}
+
+                </section>
+
+
+                <!-- COMPLAINT DESCRIPTION -->
+
+                <section class="dashboard-card">
+
+                    <div class="card-header">
+
+                        <div>
+
+                            <span class="section-label">
+                                Reported Issue
+                            </span>
+
+                            <h2>
+                                Complaint Description
+                            </h2>
+
+                        </div>
+
+                    </div>
+
+
+                    <div class="information-note">
+
+                        <span>
+                            i
+                        </span>
+
+                        <p>
+                            {{ item.description|default(item.details|default('No additional complaint description was provided.')) }}
+                        </p>
+
+                    </div>
+
+                </section>
+
+
+                <!-- IMAGE -->
+
+                {% if item.image_path or item.image_filename or item.image_url %}
+
+                    <section class="dashboard-card">
+
+                        <div class="card-header">
+
+                            <div>
+
+                                <span class="section-label">
+                                    Supporting Evidence
+                                </span>
+
+                                <h2>
+                                    Uploaded Complaint Image
+                                </h2>
+
+                            </div>
+
+                        </div>
+
+
+                        <div class="complaint-image-container">
+
+                            {% if item.image_url %}
+
+                                <img
+                                    src="{{ item.image_url }}"
+                                    alt="Complaint evidence"
+                                    class="complaint-image"
+                                >
+
+                            {% elif item.image_path %}
+
+                                <img
+                                    src="{{ url_for('static', filename=item.image_path) }}"
+                                    alt="Complaint evidence"
+                                    class="complaint-image"
+                                >
+
+                            {% else %}
+
+                                <img
+                                    src="{{ url_for('static', filename='uploads/complaints/' ~ item.image_filename) }}"
+                                    alt="Complaint evidence"
+                                    class="complaint-image"
+                                >
+
+                            {% endif %}
+
+                        </div>
+
+                    </section>
+
+                {% endif %}
+
+
+                <!-- PROCESSING / STAFF ACTIONS -->
+                <section class="dashboard-card">
+                    <div class="card-header">
+                        <div>
+                            <span class="section-label">
+                                Complaint Processing
+                            </span>
+                            <h2>
+                                Staff Actions
+                            </h2>
+                        </div>
+                    </div>
+
+                    {# The staff routes expose separate endpoints for:
+                       1. accepting an assignment,
+                       2. updating status,
+                       3. saving repair notes,
+                       4. resolving a complaint through the status endpoint.
+                       Do not use staff.update_complaint here because that
+                       endpoint does not exist in the current staff blueprint. #}
+
+                    {% if current_status not in ['resolved', 'withdrawn', 'cancelled'] %}
+
+                        {# --------------------------------------------------
+                           ACCEPT COMPLAINT
+                           -------------------------------------------------- #}
+                        {% if current_status in ['submitted', 'assigned', 'pending'] %}
+                            <div class="information-note">
+                                <span>✓</span>
+                                <p>
+                                    This complaint is assigned to you and is
+                                    waiting for acceptance. Review the resident,
+                                    location, priority, evidence, and deadline
+                                    before accepting it.
+                                </p>
+                            </div>
+
+                            <form
+                                method="POST"
+                                action="{{ url_for('staff.accept_complaint', complaint_id=item.id) }}"
+                                class="auth-form"
+                            >
+                                <div class="form-actions">
+                                    <button
+                                        type="submit"
+                                        class="btn btn-primary"
+                                    >
+                                        ✓ Accept Complaint
+                                    </button>
+                                </div>
+                            </form>
+                        {% endif %}
+
+                        {# --------------------------------------------------
+                           UPDATE STATUS
+                           -------------------------------------------------- #}
+                        {% if current_status in ['in-progress', 'accepted', 'submitted', 'assigned', 'escalated'] %}
+                            <form
+                                method="POST"
+                                action="{{ url_for('staff.update_status', complaint_id=item.id) }}"
+                                class="auth-form"
+                            >
+                                <div class="form-row">
+                                    <div class="form-group">
+                                        <label for="status">
+                                            Complaint Status
+                                        </label>
+
+                                        <select
+                                            id="status"
+                                            name="status"
+                                            required
+                                        >
+                                            {% if current_status in ['submitted', 'assigned', 'pending'] %}
+                                                <option value="In Progress">
+                                                    In Progress
+                                                </option>
+                                            {% else %}
+                                                <option
+                                                    value="In Progress"
+                                                    {% if current_status == 'in-progress' or current_status == 'accepted' %}selected{% endif %}
+                                                >
+                                                    In Progress
+                                                </option>
+                                                <option
+                                                    value="Resolved"
+                                                    {% if current_status == 'resolved' %}selected{% endif %}
+                                                >
+                                                    Resolved
+                                                </option>
+                                            {% endif %}
+                                        </select>
+
+                                        <div class="field-help">
+                                            Accept the complaint first. Use
+                                            In Progress while repair work is
+                                            being performed. Use Resolved only
+                                            after the service work is complete.
+                                        </div>
+                                    </div>
+
+                                    <div class="form-group">
+                                        <label for="priority">
+                                            Priority
+                                        </label>
+
+                                        <select
+                                            id="priority"
+                                            name="priority"
+                                            disabled
+                                        >
+                                            <option>
+                                                {{ item.priority|default('System Assigned')|replace('_', ' ')|title }}
+                                            </option>
+                                        </select>
+
+                                        <div class="field-help">
+                                            Priority is assigned by the
+                                            system's rule-based priority logic.
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <div class="form-group">
+                                    <label for="status_notes">
+                                        Status / Work Notes
+                                    </label>
+
+                                    <textarea
+                                        id="status_notes"
+                                        name="notes"
+                                        rows="5"
+                                        placeholder="Enter work progress, findings, or repair details."
+                                    >{{ item.repair_notes|default(item.notes|default('')) }}</textarea>
+
+                                    <div class="field-help">
+                                        Notes are stored with the complaint
+                                        history. Repair notes are required
+                                        when resolving the complaint.
+                                    </div>
+                                </div>
+
+                                <div class="form-actions">
+                                    <button
+                                        type="submit"
+                                        class="btn btn-secondary"
+                                    >
+                                        Save Status Update
+                                    </button>
+                                </div>
+                            </form>
+                        {% endif %}
+
+                        {# --------------------------------------------------
+                           DEDICATED REPAIR NOTES
+                           -------------------------------------------------- #}
+                        {% if current_status in ['in-progress', 'accepted', 'escalated'] %}
+                            <div class="card-header" style="margin-top: 1.5rem;">
+                                <div>
+                                    <span class="section-label">
+                                        Service Record
+                                    </span>
+                                    <h2>
+                                        Add Repair Notes
+                                    </h2>
+                                </div>
+                            </div>
+
+                            <form
+                                method="POST"
+                                action="{{ url_for('staff.repair_notes', complaint_id=item.id) }}"
+                                class="auth-form"
+                            >
+                                <div class="form-group">
+                                    <label for="repair_notes_action">
+                                        Repair Notes
+                                    </label>
+
+                                    <textarea
+                                        id="repair_notes_action"
+                                        name="repair_notes"
+                                        rows="6"
+                                        placeholder="Record the repair work performed, findings, materials used, and other relevant service details."
+                                    ></textarea>
+
+                                    <div class="field-help">
+                                        These notes are added to the complaint
+                                        service record and resident updates.
+                                    </div>
+                                </div>
+
+                                <div class="form-actions">
+                                    <button
+                                        type="submit"
+                                        class="btn btn-secondary"
+                                    >
+                                        📝 Save Repair Notes
+                                    </button>
+                                </div>
+                            </form>
+                        {% endif %}
+
+                        {# --------------------------------------------------
+                           RESOLVE COMPLAINT
+                           -------------------------------------------------- #}
+                        {% if current_status in ['in-progress', 'accepted', 'escalated'] %}
+                            <div class="card-header" style="margin-top: 1.5rem;">
+                                <div>
+                                    <span class="section-label">
+                                        Completion
+                                    </span>
+                                    <h2>
+                                        Resolve Complaint
+                                    </h2>
+                                </div>
+                            </div>
+
+                            <form
+                                method="POST"
+                                action="{{ url_for('staff.update_status', complaint_id=item.id) }}"
+                                class="auth-form"
+                            >
+                                <input
+                                    type="hidden"
+                                    name="status"
+                                    value="Resolved"
+                                >
+
+                                <div class="form-group">
+                                    <label for="resolve_notes">
+                                        Final Repair Notes
+                                    </label>
+
+                                    <textarea
+                                        id="resolve_notes"
+                                        name="notes"
+                                        rows="6"
+                                        required
+                                        placeholder="Describe the completed repair/service before resolving the complaint."
+                                    >{{ item.repair_notes|default(item.notes|default('')) }}</textarea>
+
+                                    <div class="field-help">
+                                        Final repair notes are required before
+                                        the complaint can be marked Resolved.
+                                    </div>
+                                </div>
+
+                                <div class="form-actions">
+                                    <button
+                                        type="submit"
+                                        class="btn btn-primary"
+                                    >
+                                        ✓ Resolve Complaint
+                                    </button>
+                                </div>
+                            </form>
+                        {% endif %}
+
+                    {% else %}
+                        <div class="information-note">
+                            <span>✓</span>
+                            <p>
+                                This complaint is currently
+                                <strong>
+                                    {{ item.status|replace('_', ' ')|title }}
+                                </strong>.
+                                Further processing actions are not available
+                                from this page.
+                            </p>
+                        </div>
+                    {% endif %}
+                </section>
+
+
+                <!-- REPAIR NOTES -->
+
+                <section class="dashboard-card">
+
+                    <div class="card-header">
+
+                        <div>
+
+                            <span class="section-label">
+                                Service Record
+                            </span>
+
+                            <h2>
+                                Repair Notes
+                            </h2>
+
+                        </div>
+
+                    </div>
+
+
+                    {% if item.repair_notes or item.notes %}
+
+                        <div class="information-note">
+
+                            <span>
+                                📝
+                            </span>
+
+                            <p>
+                                {{ item.repair_notes|default(item.notes) }}
+                            </p>
+
+                        </div>
+
+                    {% else %}
+
+                        <div class="empty-state">
+
+                            <div class="empty-state-icon">
+                                📝
+                            </div>
+
+                            <h3>
+                                No Repair Notes Yet
+                            </h3>
+
+                            <p>
+                                Repair notes can be added after the
+                                complaint has been processed.
+                            </p>
+
+                        </div>
+
+                    {% endif %}
+
+                </section>
+
+
+                <!-- STATUS HISTORY -->
+
+                {% if history %}
+
+                    <section class="dashboard-card">
+
+                        <div class="card-header">
+
+                            <div>
+
+                                <span class="section-label">
+                                    Complaint Activity
+                                </span>
+
+                                <h2>
+                                    Status History
+                                </h2>
+
+                            </div>
+
+                        </div>
+
+
+                        <div class="notification-list">
+
+                            {% for history in history %}
+
+                                <article class="notification-item">
+
+                                    <div class="notification-icon">
+                                        ✓
+                                    </div>
+
+                                    <div class="notification-content">
+
+                                        <div class="notification-header">
+
+                                            <div>
+
+                                                <h3>
+                                                    {{ history.status|default('Status Updated')|replace('_', ' ')|title }}
+                                                </h3>
+
+                                            </div>
+
+                                            <span class="notification-time">
+
+                                                {% if history.created_at %}
+
+                                                    {% if history.created_at.strftime is defined %}
+
+                                                        {{ history.created_at.strftime('%d %b %Y, %I:%M %p') }}
+
+                                                    {% else %}
+
+                                                        {{ history.created_at }}
+
+                                                    {% endif %}
+
+                                                {% else %}
+
+                                                    —
+
+                                                {% endif %}
+
+                                            </span>
+
+                                        </div>
+
+
+                                        {% if history.notes or history.description %}
+
+                                            <p>
+                                                {{ history.notes|default(history.description) }}
+                                            </p>
+
+                                        {% endif %}
+
+                                    </div>
+
+                                </article>
+
+                            {% endfor %}
+
+                        </div>
+
+                    </section>
+
+                {% endif %}
+
+            </div>
+
+
+            <!-- SIDEBAR -->
+
+            <aside class="dashboard-sidebar">
+
+
+                <!-- RESOLUTION DEADLINE -->
+
+                <div class="dashboard-card">
+
+                    <div class="card-header">
+
+                        <div>
+
+                            <span class="section-label">
+                                Resolution Target
+                            </span>
+
+                            <h2>
+                                Time Requirement
+                            </h2>
+
+                        </div>
+
+                    </div>
+
+
+                    <div class="details-grid">
+
+                        <div class="detail-item">
+
+                            <span class="detail-label">
+                                Selected Period
+                            </span>
+
+                            <strong>
+
+                                {% if item.preferred_resolution_time %}
+
+                                    {{ item.preferred_resolution_time }} Hours
+
+                                {% elif item.resolution_hours %}
+
+                                    {{ item.resolution_hours }} Hours
+
+                                {% else %}
+
+                                    —
+
+                                {% endif %}
+
+                            </strong>
+
+                        </div>
+
+
+                        <div class="detail-item">
+
+                            <span class="detail-label">
+                                Deadline
+                            </span>
+
+                            <strong>
+
+                                {% if item.resolution_deadline %}
+
+                                    {{ item.resolution_deadline }}
+
+                                {% elif item.deadline %}
+
+                                    {{ item.deadline }}
+
+                                {% else %}
+
+                                    System Calculated
+
+                                {% endif %}
+
+                            </strong>
+
+                        </div>
+
+                    </div>
+
+
+                    <div class="information-note">
+
+                        <span>
+                            ⏱
+                        </span>
+
+                        <p>
+                            Unresolved complaints are subject to the
+                            system's automatic escalation process when
+                            the selected resolution period expires.
+                        </p>
+
+                    </div>
+
+                </div>
+
+
+                <!-- CURRENT STATUS -->
+
+                <div class="dashboard-card">
+
+                    <div class="card-header">
+
+                        <div>
+
+                            <span class="section-label">
+                                Current State
+                            </span>
+
+                            <h2>
+                                Complaint Status
+                            </h2>
+
+                        </div>
+
+                    </div>
+
+
+                    <div class="account-actions">
+
+                        <div class="secondary-action">
+
+                            <span>
+                                ●
+                            </span>
+
+                            <span>
+                                Current Status
+                            </span>
+
+                            <strong>
+                                {{ item.status|default('Assigned')|replace('_', ' ')|title }}
+                            </strong>
+
+                        </div>
+
+
+                        <div class="secondary-action">
+
+                            <span>
+                                !
+                            </span>
+
+                            <span>
+                                Priority
+                            </span>
+
+                            <strong>
+                                {{ item.priority|default('Not assigned')|replace('_', ' ')|title }}
+                            </strong>
+
+                        </div>
+
+                    </div>
+
+                </div>
+
+
+                <!-- LOCATION HISTORY -->
+
+                <div class="dashboard-card">
+
+                    <div class="card-header">
+
+                        <div>
+
+                            <span class="section-label">
+                                Previous Issues
+                            </span>
+
+                            <h2>
+                                Location History
+                            </h2>
+
+                        </div>
+
+                    </div>
+
+                    <p>
+                        Review previous complaints associated with this
+                        location to understand recurring electricity
+                        service issues.
+                    </p>
+
+                    <a
+                        href="{{ url_for('staff.location_history', location=item.location) }}"
+                        class="btn btn-primary"
+                    >
+                        View Location History
+                    </a>
+
+                </div>
+
+
+                <!-- PROCESSING GUIDELINES -->
+
+                <div class="dashboard-card">
+
+                    <div class="card-header">
+
+                        <div>
+
+                            <span class="section-label">
+                                Processing Guide
+                            </span>
+
+                            <h2>
+                                Staff Actions
+                            </h2>
+
+                        </div>
+
+                    </div>
+
+
+                    <div class="account-actions">
+
+                        <div class="secondary-action">
+
+                            <span>
+                                1
+                            </span>
+
+                            <span>
+                                Review complaint
+                            </span>
+
+                        </div>
+
+
+                        <div class="secondary-action">
+
+                            <span>
+                                2
+                            </span>
+
+                            <span>
+                                Accept assignment
+                            </span>
+
+                        </div>
+
+
+                        <div class="secondary-action">
+
+                            <span>
+                                3
+                            </span>
+
+                            <span>
+                                Process repair
+                            </span>
+
+                        </div>
+
+
+                        <div class="secondary-action">
+
+                            <span>
+                                4
+                            </span>
+
+                            <span>
+                                Add repair notes
+                            </span>
+
+                        </div>
+
+
+                        <div class="secondary-action">
+
+                            <span>
+                                5
+                            </span>
+
+                            <span>
+                                Mark resolved
+                            </span>
+
+                        </div>
+
+                    </div>
+
+                </div>
+
+            </aside>
+
+        </section>
+
+    {% else %}
+
+        <!-- COMPLAINT NOT FOUND -->
+
+        <section class="dashboard-card">
+
+            <div class="empty-state">
+
+                <div class="empty-state-icon">
+                    📋
+                </div>
+
+                <h3>
+                    Complaint Not Found
+                </h3>
+
+                <p>
+                    The requested complaint could not be found or is
+                    no longer available for staff processing.
+                </p>
+
+                <a
+                    href="{{ url_for('staff.dashboard') }}"
+                    class="btn btn-primary"
+                >
+                    Return to Dashboard
+                </a>
+
+            </div>
+
+        </section>
+
+    {% endif %}
+
+</section>
+{% endblock %}
