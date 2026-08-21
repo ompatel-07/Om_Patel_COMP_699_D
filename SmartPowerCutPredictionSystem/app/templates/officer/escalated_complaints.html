@@ -1,0 +1,1062 @@
+{% extends "base.html" %}
+
+{% block title %}
+Escalated Complaints | Smart Power Cut Prediction System
+{% endblock %}
+
+{% block content %}
+
+<section class="dashboard-page">
+
+    {% set escalated_items = escalated_complaints|default(complaints|default([])) %}
+
+    <!-- PAGE HEADER -->
+
+    <div class="dashboard-header">
+
+        <div>
+
+            <span class="section-label">
+                Senior Electricity Officer
+            </span>
+
+            <h1>
+                Escalated Complaints
+            </h1>
+
+            <p>
+                Review unresolved complaints that have been escalated
+                after the applicable resolution period and take the
+                required departmental action.
+            </p>
+
+        </div>
+
+        <div class="dashboard-header-actions">
+
+            <a
+                href="{{ url_for('officer.dashboard') }}"
+                class="btn btn-secondary"
+            >
+                ← Dashboard
+            </a>
+
+            <a
+                href="{{ url_for('officer.escalated_complaints') }}"
+                class="btn btn-primary"
+            >
+                ↻ Refresh
+            </a>
+
+        </div>
+
+    </div>
+
+
+    <!-- SUMMARY -->
+
+    <section class="dashboard-summary">
+
+        <article class="summary-card">
+
+            <div class="summary-icon">
+                ↑
+            </div>
+
+            <div class="summary-content">
+
+                <span class="summary-label">
+                    Total Escalated
+                </span>
+
+                <strong class="summary-value">
+                    {{ escalated_items|length }}
+                </strong>
+
+                <span class="summary-description">
+                    Complaints requiring officer review
+                </span>
+
+            </div>
+
+        </article>
+
+
+        <article class="summary-card">
+
+            <div class="summary-icon">
+                ⏳
+            </div>
+
+            <div class="summary-content">
+
+                <span class="summary-label">
+                    Pending Review
+                </span>
+
+                <strong class="summary-value">
+                    {{ pending_review_count|default(0) }}
+                </strong>
+
+                <span class="summary-description">
+                    Complaints awaiting officer action
+                </span>
+
+            </div>
+
+        </article>
+
+
+        <article class="summary-card">
+
+            <div class="summary-icon">
+                👤
+            </div>
+
+            <div class="summary-content">
+
+                <span class="summary-label">
+                    Reassignment Required
+                </span>
+
+                <strong class="summary-value">
+                    {{ reassignment_count|default(0) }}
+                </strong>
+
+                <span class="summary-description">
+                    Complaints requiring staff assignment
+                </span>
+
+            </div>
+
+        </article>
+
+
+        <article class="summary-card">
+
+            <div class="summary-icon">
+                ✓
+            </div>
+
+            <div class="summary-content">
+
+                <span class="summary-label">
+                    Action Recorded
+                </span>
+
+                <strong class="summary-value">
+                    {{ final_action_count|default(0) }}
+                </strong>
+
+                <span class="summary-description">
+                    Complaints with officer action recorded
+                </span>
+
+            </div>
+
+        </article>
+
+    </section>
+
+
+    <!-- ESCALATION INFORMATION -->
+
+    <section class="dashboard-card">
+
+        <div class="card-header">
+
+            <div>
+
+                <span class="section-label">
+                    Escalation Queue
+                </span>
+
+                <h2>
+                    Complaints Requiring Review
+                </h2>
+
+            </div>
+
+            {% if escalated_items %}
+
+                <span class="record-count">
+                    {{ escalated_items|length }}
+                    record{% if escalated_items|length != 1 %}s{% endif %}
+                </span>
+
+            {% endif %}
+
+        </div>
+
+
+        <div class="information-note">
+
+            <span>
+                i
+            </span>
+
+            <p>
+                These complaints reached the escalation stage because
+                they were not resolved within the resident-selected
+                24-hour or 48-hour resolution period. Review each
+                complaint before assigning staff or recording the final
+                action.
+            </p>
+
+        </div>
+
+    </section>
+
+
+    <!-- FILTERS -->
+
+    <section class="dashboard-card">
+
+        <div class="card-header">
+
+            <div>
+
+                <span class="section-label">
+                    Complaint Search
+                </span>
+
+                <h2>
+                    Filter Escalated Complaints
+                </h2>
+
+            </div>
+
+        </div>
+
+
+        <form
+            method="GET"
+            action="{{ url_for('officer.escalated_complaints') }}"
+            class="auth-form"
+        >
+
+            <div class="form-row">
+
+                <div class="form-group">
+
+                    <label for="location">
+                        Location
+                    </label>
+
+                    <input
+                        type="text"
+                        id="location"
+                        name="location"
+                        value="{{ request.args.get('location', '') }}"
+                        placeholder="Search by complaint location"
+                    >
+
+                </div>
+
+
+                <div class="form-group">
+
+                    <label for="complaint_type">
+                        Complaint Type
+                    </label>
+
+                    <select
+                        id="complaint_type"
+                        name="complaint_type"
+                    >
+
+                        <option value="">
+                            All complaint types
+                        </option>
+
+                        <option
+                            value="power_cut"
+                            {% if request.args.get('complaint_type') == 'power_cut' %}selected{% endif %}
+                        >
+                            Power Cut
+                        </option>
+
+                        <option
+                            value="streetlight"
+                            {% if request.args.get('complaint_type') == 'streetlight' %}selected{% endif %}
+                        >
+                            Streetlight
+                        </option>
+
+                        <option
+                            value="pole_damage"
+                            {% if request.args.get('complaint_type') == 'pole_damage' %}selected{% endif %}
+                        >
+                            Electric Pole Damage
+                        </option>
+
+                        <option
+                            value="voltage_issue"
+                            {% if request.args.get('complaint_type') == 'voltage_issue' %}selected{% endif %}
+                        >
+                            Voltage Issue
+                        </option>
+
+                    </select>
+
+                </div>
+
+
+                <div class="form-group">
+
+                    <label for="priority">
+                        Priority
+                    </label>
+
+                    <select
+                        id="priority"
+                        name="priority"
+                    >
+
+                        <option value="">
+                            All priorities
+                        </option>
+
+                        <option
+                            value="high"
+                            {% if request.args.get('priority') == 'high' %}selected{% endif %}
+                        >
+                            High
+                        </option>
+
+                        <option
+                            value="medium"
+                            {% if request.args.get('priority') == 'medium' %}selected{% endif %}
+                        >
+                            Medium
+                        </option>
+
+                        <option
+                            value="low"
+                            {% if request.args.get('priority') == 'low' %}selected{% endif %}
+                        >
+                            Low
+                        </option>
+
+                    </select>
+
+                </div>
+
+
+                <div class="form-group form-group-action">
+
+                    <label>
+                        &nbsp;
+                    </label>
+
+                    <button
+                        type="submit"
+                        class="btn btn-primary"
+                    >
+                        Search
+                    </button>
+
+                </div>
+
+            </div>
+
+        </form>
+
+    </section>
+
+
+    <!-- COMPLAINT TABLE -->
+
+    <section class="dashboard-card">
+
+        <div class="card-header">
+
+            <div>
+
+                <span class="section-label">
+                    Escalated Records
+                </span>
+
+                <h2>
+                    Complaint Review Queue
+                </h2>
+
+            </div>
+
+        </div>
+
+
+        {% if escalated_items %}
+
+            <div class="complaint-table-wrapper">
+
+                <table class="data-table">
+
+                    <thead>
+
+                        <tr>
+
+                            <th>
+                                Complaint
+                            </th>
+
+                            <th>
+                                Resident
+                            </th>
+
+                            <th>
+                                Type
+                            </th>
+
+                            <th>
+                                Location
+                            </th>
+
+                            <th>
+                                Priority
+                            </th>
+
+                            <th>
+                                Resolution
+                            </th>
+
+                            <th>
+                                Assigned Staff
+                            </th>
+
+                            <th>
+                                Status
+                            </th>
+
+                            <th>
+                                Action
+                            </th>
+
+                        </tr>
+
+                    </thead>
+
+
+                    <tbody>
+
+                        {% for complaint in escalated_items %}
+
+                            {% set complaint_status =
+                                complaint.status|default('Escalated')
+                                |lower
+                                |replace(' ', '-')
+                                |replace('_', '-')
+                            %}
+
+                            {% set complaint_priority =
+                                complaint.priority|default('')
+                                |lower
+                                |replace(' ', '-')
+                                |replace('_', '-')
+                            %}
+
+
+                            <tr>
+
+                                <!-- COMPLAINT -->
+
+                                <td>
+
+                                    <strong>
+                                        {{ complaint.complaint_number|default(complaint.id|default('—')) }}
+                                    </strong>
+
+                                    {% if complaint.created_at %}
+
+                                        <small class="table-subtext">
+
+                                            {% if complaint.created_at.strftime is defined %}
+
+                                                {{ complaint.created_at.strftime('%d %b %Y, %I:%M %p') }}
+
+                                            {% else %}
+
+                                                {{ complaint.created_at }}
+
+                                            {% endif %}
+
+                                        </small>
+
+                                    {% endif %}
+
+                                </td>
+
+
+                                <!-- RESIDENT -->
+
+                                <td>
+
+                                    {% if complaint.resident %}
+
+                                        {{ complaint.resident.name|default(
+                                            complaint.resident.username|default(
+                                                complaint.resident.email|default('Resident')
+                                            )
+                                        ) }}
+
+                                    {% elif complaint.user %}
+
+                                        {{ complaint.user.name|default(
+                                            complaint.user.username|default(
+                                                complaint.user.email|default('Resident')
+                                            )
+                                        ) }}
+
+                                    {% elif complaint.resident_name %}
+
+                                        {{ complaint.resident_name }}
+
+                                    {% else %}
+
+                                        <span class="muted-text">
+                                            Resident
+                                        </span>
+
+                                    {% endif %}
+
+                                </td>
+
+
+                                <!-- TYPE -->
+
+                                <td>
+
+                                    {{ complaint.complaint_type|default('—')
+                                        |replace('_', ' ')
+                                        |title }}
+
+                                </td>
+
+
+                                <!-- LOCATION -->
+
+                                <td>
+                                    {{ complaint.location|default('—') }}
+                                </td>
+
+
+                                <!-- PRIORITY -->
+
+                                <td>
+
+                                    {% if complaint.priority %}
+
+                                        <span
+                                            class="status-badge priority-{{ complaint_priority }}"
+                                        >
+                                            {{ complaint.priority
+                                                |replace('_', ' ')
+                                                |title }}
+                                        </span>
+
+                                    {% else %}
+
+                                        <span class="muted-text">
+                                            —
+                                        </span>
+
+                                    {% endif %}
+
+                                </td>
+
+
+                                <!-- RESOLUTION PERIOD -->
+
+                                <td>
+
+                                    {% if complaint.preferred_resolution_time %}
+
+                                        {{ complaint.preferred_resolution_time }}
+                                        Hours
+
+                                    {% elif complaint.resolution_hours %}
+
+                                        {{ complaint.resolution_hours }}
+                                        Hours
+
+                                    {% else %}
+
+                                        —
+
+                                    {% endif %}
+
+                                </td>
+
+
+                                <!-- ASSIGNED STAFF -->
+
+                                <td>
+
+                                    {% if complaint.assigned_staff %}
+
+                                        {{ complaint.assigned_staff.name|default(
+                                            complaint.assigned_staff.username|default(
+                                                'Assigned Staff'
+                                            )
+                                        ) }}
+
+                                    {% elif complaint.staff %}
+
+                                        {{ complaint.staff.name|default(
+                                            complaint.staff.username|default(
+                                                'Assigned Staff'
+                                            )
+                                        ) }}
+
+                                    {% elif complaint.assigned_staff_id %}
+
+                                        Staff #{{ complaint.assigned_staff_id }}
+
+                                    {% else %}
+
+                                        <span class="muted-text">
+                                            Not assigned
+                                        </span>
+
+                                    {% endif %}
+
+                                </td>
+
+
+                                <!-- STATUS -->
+
+                                <td>
+
+                                    <span
+                                        class="status-badge status-{{ complaint_status }}"
+                                    >
+                                        {{ complaint.status|default('Escalated')
+                                            |replace('_', ' ')
+                                            |title }}
+                                    </span>
+
+                                </td>
+
+
+                                <!-- ACTION -->
+
+                                <td>
+
+                                    <a
+                                        href="{{ url_for('officer.complaint_detail', complaint_id=complaint.id) }}"
+                                        class="table-action"
+                                    >
+                                        Review
+                                    </a>
+
+                                </td>
+
+                            </tr>
+
+                        {% endfor %}
+
+                    </tbody>
+
+                </table>
+
+            </div>
+
+        {% else %}
+
+            <div class="empty-state">
+
+                <div class="empty-state-icon">
+                    ✓
+                </div>
+
+                <h3>
+                    No Escalated Complaints
+                </h3>
+
+                <p>
+                    There are currently no escalated complaints
+                    requiring Senior Electricity Officer review.
+                </p>
+
+                <a
+                    href="{{ url_for('officer.dashboard') }}"
+                    class="btn btn-secondary"
+                >
+                    Return to Dashboard
+                </a>
+
+            </div>
+
+        {% endif %}
+
+    </section>
+
+
+    <!-- OFFICER ACTION GUIDANCE -->
+
+    <section class="dashboard-grid">
+
+        <div class="dashboard-main">
+
+            <section class="dashboard-card">
+
+                <div class="card-header">
+
+                    <div>
+
+                        <span class="section-label">
+                            Review Process
+                        </span>
+
+                        <h2>
+                            Escalated Complaint Workflow
+                        </h2>
+
+                    </div>
+
+                </div>
+
+
+                <div class="information-grid">
+
+                    <div class="information-card">
+
+                        <div class="information-card-icon">
+                            1
+                        </div>
+
+                        <h3>
+                            Review Complaint
+                        </h3>
+
+                        <p>
+                            Open the complaint and review the reported
+                            issue, location, date, time, priority,
+                            resolution period, and processing history.
+                        </p>
+
+                    </div>
+
+
+                    <div class="information-card">
+
+                        <div class="information-card-icon">
+                            2
+                        </div>
+
+                        <h3>
+                            Review Staff Assignment
+                        </h3>
+
+                        <p>
+                            Check whether the complaint is currently
+                            assigned to an appropriate Electricity
+                            Department Staff member.
+                        </p>
+
+                    </div>
+
+
+                    <div class="information-card">
+
+                        <div class="information-card-icon">
+                            3
+                        </div>
+
+                        <h3>
+                            Assign or Reassign
+                        </h3>
+
+                        <p>
+                            Assign the escalated complaint to the
+                            appropriate staff member when reassignment
+                            is required.
+                        </p>
+
+                    </div>
+
+
+                    <div class="information-card">
+
+                        <div class="information-card-icon">
+                            4
+                        </div>
+
+                        <h3>
+                            Record Final Action
+                        </h3>
+
+                        <p>
+                            Record the final action taken after completing
+                            the officer's review of the escalated
+                            complaint.
+                        </p>
+
+                    </div>
+
+                </div>
+
+            </section>
+
+
+            <!-- RESOLUTION RULE -->
+
+            <section class="dashboard-card">
+
+                <div class="card-header">
+
+                    <div>
+
+                        <span class="section-label">
+                            Resolution Rule
+                        </span>
+
+                        <h2>
+                            24 / 48 Hour Escalation
+                        </h2>
+
+                    </div>
+
+                </div>
+
+
+                <div class="details-grid">
+
+                    <div class="detail-item">
+
+                        <span class="detail-label">
+                            Option 1
+                        </span>
+
+                        <strong>
+                            24 Hours
+                        </strong>
+
+                    </div>
+
+
+                    <div class="detail-item">
+
+                        <span class="detail-label">
+                            Option 2
+                        </span>
+
+                        <strong>
+                            48 Hours
+                        </strong>
+
+                    </div>
+
+
+                    <div class="detail-item">
+
+                        <span class="detail-label">
+                            Escalation Condition
+                        </span>
+
+                        <strong>
+                            Complaint Remains Unresolved
+                        </strong>
+
+                    </div>
+
+
+                    <div class="detail-item">
+
+                        <span class="detail-label">
+                            Responsible Role
+                        </span>
+
+                        <strong>
+                            Senior Electricity Officer
+                        </strong>
+
+                    </div>
+
+                </div>
+
+            </section>
+
+        </div>
+
+
+        <!-- SIDEBAR -->
+
+        <aside class="dashboard-sidebar">
+
+            <section class="dashboard-card">
+
+                <div class="card-header">
+
+                    <div>
+
+                        <span class="section-label">
+                            Officer Navigation
+                        </span>
+
+                        <h2>
+                            Quick Access
+                        </h2>
+
+                    </div>
+
+                </div>
+
+
+                <div class="account-actions">
+
+                    <a
+                        href="{{ url_for('officer.dashboard') }}"
+                        class="secondary-action"
+                    >
+
+                        <span>
+                            🏠
+                        </span>
+
+                        <span>
+                            Officer Dashboard
+                        </span>
+
+                        <span>
+                            →
+                        </span>
+
+                    </a>
+
+
+                    <a
+                        href="{{ url_for('officer.escalated_complaints') }}"
+                        class="secondary-action"
+                    >
+
+                        <span>
+                            ↑
+                        </span>
+
+                        <span>
+                            Escalated Complaints
+                        </span>
+
+                        <span>
+                            →
+                        </span>
+
+                    </a>
+
+                </div>
+
+            </section>
+
+
+            <section class="dashboard-card">
+
+                <div class="card-header">
+
+                    <div>
+
+                        <span class="section-label">
+                            Review Priority
+                        </span>
+
+                        <h2>
+                            Focus Areas
+                        </h2>
+
+                    </div>
+
+                </div>
+
+
+                <div class="account-actions">
+
+                    <div class="secondary-action">
+
+                        <span>
+                            🔴
+                        </span>
+
+                        <span>
+                            High Priority Complaints
+                        </span>
+
+                    </div>
+
+
+                    <div class="secondary-action">
+
+                        <span>
+                            ⏱
+                        </span>
+
+                        <span>
+                            Overdue Complaints
+                        </span>
+
+                    </div>
+
+
+                    <div class="secondary-action">
+
+                        <span>
+                            👤
+                        </span>
+
+                        <span>
+                            Staff Assignment
+                        </span>
+
+                    </div>
+
+
+                    <div class="secondary-action">
+
+                        <span>
+                            📝
+                        </span>
+
+                        <span>
+                            Final Action
+                        </span>
+
+                    </div>
+
+                </div>
+
+            </section>
+
+
+            <section class="dashboard-card">
+
+                <div class="card-header">
+
+                    <div>
+
+                        <span class="section-label">
+                            Important
+                        </span>
+
+                        <h2>
+                            Complaint Records
+                        </h2>
+
+                    </div>
+
+                </div>
+
+                <p>
+                    Officer actions should accurately represent the
+                    decision taken for each escalated complaint.
+                    Staff assignment and final action information are
+                    retained with the complaint processing record.
+                </p>
+
+            </section>
+
+        </aside>
+
+    </section>
+
+</section>
+
+{% endblock %}

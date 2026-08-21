@@ -1,0 +1,975 @@
+{% extends "base.html" %}
+
+{% block title %}
+Senior Electricity Officer Dashboard | Smart Power Cut Prediction System
+{% endblock %}
+
+{% block content %}
+
+<section class="dashboard-page">
+
+    {% set escalated_items = escalated_complaints|default(complaints|default([])) %}
+
+    <!-- PAGE HEADER -->
+
+    <div class="dashboard-header">
+
+        <div>
+
+            <span class="section-label">
+                Senior Electricity Officer
+            </span>
+
+            <h1>
+                Officer Dashboard
+            </h1>
+
+            <p>
+                Review escalated complaints, assign them to appropriate
+                electricity department staff, and record final actions
+                for unresolved service requests.
+            </p>
+
+        </div>
+
+
+        <div class="dashboard-header-actions">
+
+            <a
+                href="{{ url_for('officer.dashboard') }}"
+                class="btn btn-secondary"
+            >
+                ↻ Refresh
+            </a>
+
+            <a
+                href="{{ url_for('officer.escalated_complaints') }}"
+                class="btn btn-primary"
+            >
+                Escalated Complaints
+            </a>
+
+        </div>
+
+    </div>
+
+
+    <!-- SUMMARY -->
+
+    <section class="dashboard-summary">
+
+        <article class="summary-card">
+
+            <div class="summary-icon">
+                ↑
+            </div>
+
+            <div class="summary-content">
+
+                <span class="summary-label">
+                    Escalated Complaints
+                </span>
+
+                <strong class="summary-value">
+                    {{ escalated_count|default(escalated_items|length) }}
+                </strong>
+
+                <span class="summary-description">
+                    Complaints requiring officer review
+                </span>
+
+            </div>
+
+        </article>
+
+
+        <article class="summary-card">
+
+            <div class="summary-icon">
+                ⏳
+            </div>
+
+            <div class="summary-content">
+
+                <span class="summary-label">
+                    Awaiting Review
+                </span>
+
+                <strong class="summary-value">
+                    {{ pending_review_count|default(0) }}
+                </strong>
+
+                <span class="summary-description">
+                    Escalated complaints not yet reviewed
+                </span>
+
+            </div>
+
+        </article>
+
+
+        <article class="summary-card">
+
+            <div class="summary-icon">
+                    👤
+            </div>
+
+            <div class="summary-content">
+
+                <span class="summary-label">
+                    Reassignment Required
+                </span>
+
+                <strong class="summary-value">
+                    {{ reassignment_count|default(0) }}
+                </strong>
+
+                <span class="summary-description">
+                    Complaints requiring staff assignment
+                </span>
+
+            </div>
+
+        </article>
+
+
+        <article class="summary-card">
+
+            <div class="summary-icon">
+                ✓
+            </div>
+
+            <div class="summary-content">
+
+                <span class="summary-label">
+                    Final Actions
+                </span>
+
+                <strong class="summary-value">
+                    {{ final_action_count|default(0) }}
+                </strong>
+
+                <span class="summary-description">
+                    Officer actions recorded
+                </span>
+
+            </div>
+
+        </article>
+
+    </section>
+
+
+    <!-- ESCALATION INFORMATION -->
+
+    <section class="dashboard-card">
+
+        <div class="card-header">
+
+            <div>
+
+                <span class="section-label">
+                    Automated Escalation
+                </span>
+
+                <h2>
+                    Escalation Review Queue
+                </h2>
+
+            </div>
+
+            {% if escalated_items %}
+
+                <span class="record-count">
+                    {{ escalated_items|length }}
+                    complaint{% if escalated_items|length != 1 %}s{% endif %}
+                </span>
+
+            {% endif %}
+
+        </div>
+
+
+        <div class="information-note">
+
+            <span>
+                ↑
+            </span>
+
+            <p>
+                Complaints that remain unresolved after the resident's
+                selected 24-hour or 48-hour resolution period can be
+                automatically escalated for Senior Electricity Officer
+                review.
+            </p>
+
+        </div>
+
+    </section>
+
+
+    <!-- ESCALATED COMPLAINTS -->
+
+    <section class="dashboard-card">
+
+        <div class="card-header">
+
+            <div>
+
+                <span class="section-label">
+                    Officer Work Queue
+                </span>
+
+                <h2>
+                    Escalated Complaints
+                </h2>
+
+            </div>
+
+
+            <a
+                href="{{ url_for('officer.escalated_complaints') }}"
+                class="text-link"
+            >
+                View All →
+            </a>
+
+        </div>
+
+
+        {% if escalated_items %}
+
+            <div class="complaint-table-wrapper">
+
+                <table class="data-table">
+
+                    <thead>
+
+                        <tr>
+
+                            <th>
+                                Complaint
+                            </th>
+
+                            <th>
+                                Type
+                            </th>
+
+                            <th>
+                                Location
+                            </th>
+
+                            <th>
+                                Priority
+                            </th>
+
+                            <th>
+                                Resolution Period
+                            </th>
+
+                            <th>
+                                Current Status
+                            </th>
+
+                            <th>
+                                Assigned Staff
+                            </th>
+
+                            <th>
+                                Action
+                            </th>
+
+                        </tr>
+
+                    </thead>
+
+
+                    <tbody>
+
+                        {% for complaint in escalated_items %}
+
+                            {% set complaint_status =
+                                complaint.status|default('Escalated')
+                                |lower
+                                |replace(' ', '-')
+                                |replace('_', '-')
+                            %}
+
+                            {% set complaint_priority =
+                                complaint.priority|default('')
+                                |lower
+                                |replace(' ', '-')
+                                |replace('_', '-')
+                            %}
+
+
+                            <tr>
+
+                                <td>
+
+                                    <strong>
+                                        {{ complaint.complaint_number|default(complaint.id|default('—')) }}
+                                    </strong>
+
+                                    {% if complaint.created_at %}
+
+                                        <small class="table-subtext">
+
+                                            {% if complaint.created_at.strftime is defined %}
+
+                                                {{ complaint.created_at.strftime('%d %b %Y') }}
+
+                                            {% else %}
+
+                                                {{ complaint.created_at }}
+
+                                            {% endif %}
+
+                                        </small>
+
+                                    {% endif %}
+
+                                </td>
+
+
+                                <td>
+                                    {{ complaint.complaint_type|default('—')|replace('_', ' ')|title }}
+                                </td>
+
+
+                                <td>
+                                    {{ complaint.location|default('—') }}
+                                </td>
+
+
+                                <td>
+
+                                    {% if complaint.priority %}
+
+                                        <span
+                                            class="status-badge priority-{{ complaint_priority }}"
+                                        >
+                                            {{ complaint.priority|replace('_', ' ')|title }}
+                                        </span>
+
+                                    {% else %}
+
+                                        <span class="muted-text">
+                                            —
+                                        </span>
+
+                                    {% endif %}
+
+                                </td>
+
+
+                                <td>
+
+                                    {% if complaint.preferred_resolution_time %}
+
+                                        {{ complaint.preferred_resolution_time }}
+                                        Hours
+
+                                    {% elif complaint.resolution_hours %}
+
+                                        {{ complaint.resolution_hours }}
+                                        Hours
+
+                                    {% else %}
+
+                                        —
+
+                                    {% endif %}
+
+                                </td>
+
+
+                                <td>
+
+                                    <span
+                                        class="status-badge status-{{ complaint_status }}"
+                                    >
+                                        {{ complaint.status|default('Escalated')|replace('_', ' ')|title }}
+                                    </span>
+
+                                </td>
+
+
+                                <td>
+
+                                    {% if complaint.assigned_staff %}
+
+                                        {{ complaint.assigned_staff.name|default(
+                                            complaint.assigned_staff.username|default('Assigned Staff')
+                                        ) }}
+
+                                    {% elif complaint.staff %}
+
+                                        {{ complaint.staff.name|default(
+                                            complaint.staff.username|default('Assigned Staff')
+                                        ) }}
+
+                                    {% else %}
+
+                                        <span class="muted-text">
+                                            Not assigned
+                                        </span>
+
+                                    {% endif %}
+
+                                </td>
+
+
+                                <td>
+
+                                    <a
+                                        href="{{ url_for('officer.complaint_detail', complaint_id=complaint.id) }}"
+                                        class="table-action"
+                                    >
+                                        Review
+                                    </a>
+
+                                </td>
+
+                            </tr>
+
+                        {% endfor %}
+
+                    </tbody>
+
+                </table>
+
+            </div>
+
+        {% else %}
+
+            <div class="empty-state">
+
+                <div class="empty-state-icon">
+                    ✓
+                </div>
+
+                <h3>
+                    No Escalated Complaints
+                </h3>
+
+                <p>
+                    There are currently no complaints requiring Senior
+                    Electricity Officer review.
+                </p>
+
+            </div>
+
+        {% endif %}
+
+    </section>
+
+
+    <!-- OFFICER RESPONSIBILITIES -->
+
+    <section class="dashboard-grid">
+
+        <div class="dashboard-main">
+
+            <section class="dashboard-card">
+
+                <div class="card-header">
+
+                    <div>
+
+                        <span class="section-label">
+                            Officer Responsibilities
+                        </span>
+
+                        <h2>
+                            Escalation Handling Workflow
+                        </h2>
+
+                    </div>
+
+                </div>
+
+
+                <div class="information-grid">
+
+                    <div class="information-card">
+
+                        <div class="information-card-icon">
+                            ↑
+                        </div>
+
+                        <h3>
+                            Review Escalation
+                        </h3>
+
+                        <p>
+                            Review complaints automatically escalated
+                            after their applicable resolution period
+                            expired without resolution.
+                        </p>
+
+                    </div>
+
+
+                    <div class="information-card">
+
+                        <div class="information-card-icon">
+                            📋
+                        </div>
+
+                        <h3>
+                            Examine Complaint
+                        </h3>
+
+                        <p>
+                            Review the complaint type, location, reported
+                            details, priority, assigned staff, and
+                            processing history.
+                        </p>
+
+                    </div>
+
+
+                    <div class="information-card">
+
+                        <div class="information-card-icon">
+                            👤
+                        </div>
+
+                        <h3>
+                            Assign Staff
+                        </h3>
+
+                        <p>
+                            Assign an escalated complaint to the
+                            appropriate Electricity Department Staff
+                            member for further action.
+                        </p>
+
+                    </div>
+
+
+                    <div class="information-card">
+
+                        <div class="information-card-icon">
+                            ⚙
+                        </div>
+
+                        <h3>
+                            Monitor Action
+                        </h3>
+
+                        <p>
+                            Review the complaint processing status and
+                            ensure the assigned service request receives
+                            appropriate departmental attention.
+                        </p>
+
+                    </div>
+
+
+                    <div class="information-card">
+
+                        <div class="information-card-icon">
+                            📝
+                        </div>
+
+                        <h3>
+                            Record Final Action
+                        </h3>
+
+                        <p>
+                            Record the final action taken for the
+                            escalated complaint after officer review.
+                        </p>
+
+                    </div>
+
+
+                    <div class="information-card">
+
+                        <div class="information-card-icon">
+                            ✓
+                        </div>
+
+                        <h3>
+                            Complete Review
+                        </h3>
+
+                        <p>
+                            Maintain an accurate escalation record after
+                            the appropriate staff assignment and final
+                            officer action have been recorded.
+                        </p>
+
+                    </div>
+
+                </div>
+
+            </section>
+
+
+            <!-- ESCALATION LOGIC -->
+
+            <section class="dashboard-card">
+
+                <div class="card-header">
+
+                    <div>
+
+                        <span class="section-label">
+                            Escalation Logic
+                        </span>
+
+                        <h2>
+                            Resolution Period Monitoring
+                        </h2>
+
+                    </div>
+
+                </div>
+
+
+                <div class="details-grid">
+
+                    <div class="detail-item">
+
+                        <span class="detail-label">
+                            Resident Selection
+                        </span>
+
+                        <strong>
+                            24 or 48 Hours
+                        </strong>
+
+                    </div>
+
+
+                    <div class="detail-item">
+
+                        <span class="detail-label">
+                            Trigger
+                        </span>
+
+                        <strong>
+                            Unresolved Complaint
+                        </strong>
+
+                    </div>
+
+
+                    <div class="detail-item">
+
+                        <span class="detail-label">
+                            Escalation
+                        </span>
+
+                        <strong>
+                            Senior Officer Review
+                        </strong>
+
+                    </div>
+
+
+                    <div class="detail-item">
+
+                        <span class="detail-label">
+                            Next Action
+                        </span>
+
+                        <strong>
+                            Staff Reassignment / Final Action
+                        </strong>
+
+                    </div>
+
+                </div>
+
+
+                <div class="information-note">
+
+                    <span>
+                        i
+                    </span>
+
+                    <p>
+                        The escalation process is handled by the system's
+                        complaint automation logic. Officer actions are
+                        used to review the escalated complaint, assign
+                        appropriate staff, and record the final action.
+                    </p>
+
+                </div>
+
+            </section>
+
+        </div>
+
+
+        <!-- SIDEBAR -->
+
+        <aside class="dashboard-sidebar">
+
+
+            <!-- QUICK ACCESS -->
+
+            <section class="dashboard-card">
+
+                <div class="card-header">
+
+                    <div>
+
+                        <span class="section-label">
+                            Officer Services
+                        </span>
+
+                        <h2>
+                            Quick Access
+                        </h2>
+
+                    </div>
+
+                </div>
+
+
+                <div class="account-actions">
+
+                    <a
+                        href="{{ url_for('officer.dashboard') }}"
+                        class="secondary-action"
+                    >
+
+                        <span>
+                            🏠
+                        </span>
+
+                        <span>
+                            Officer Dashboard
+                        </span>
+
+                        <span>
+                            →
+                        </span>
+
+                    </a>
+
+
+                    <a
+                        href="{{ url_for('officer.escalated_complaints') }}"
+                        class="secondary-action"
+                    >
+
+                        <span>
+                            ↑
+                        </span>
+
+                        <span>
+                            Escalated Complaints
+                        </span>
+
+                        <span>
+                            →
+                        </span>
+
+                    </a>
+
+                </div>
+
+            </section>
+
+
+            <!-- ESCALATION PRIORITY -->
+
+            <section class="dashboard-card">
+
+                <div class="card-header">
+
+                    <div>
+
+                        <span class="section-label">
+                            Review Focus
+                        </span>
+
+                        <h2>
+                            Officer Attention
+                        </h2>
+
+                    </div>
+
+                </div>
+
+
+                <div class="account-actions">
+
+                    <div class="secondary-action">
+
+                        <span>
+                            🔴
+                        </span>
+
+                        <span>
+                            High Priority
+                        </span>
+
+                    </div>
+
+
+                    <div class="secondary-action">
+
+                        <span>
+                            ⏱
+                        </span>
+
+                        <span>
+                            Overdue Resolution
+                        </span>
+
+                    </div>
+
+
+                    <div class="secondary-action">
+
+                        <span>
+                            👤
+                        </span>
+
+                        <span>
+                            Staff Reassignment
+                        </span>
+
+                    </div>
+
+
+                    <div class="secondary-action">
+
+                        <span>
+                            📝
+                        </span>
+
+                        <span>
+                            Final Action
+                        </span>
+
+                    </div>
+
+                </div>
+
+            </section>
+
+
+            <!-- PROCESSING GUIDANCE -->
+
+            <section class="dashboard-card">
+
+                <div class="card-header">
+
+                    <div>
+
+                        <span class="section-label">
+                            Processing Guide
+                        </span>
+
+                        <h2>
+                            Escalated Complaint
+                        </h2>
+
+                    </div>
+
+                </div>
+
+
+                <div class="account-actions">
+
+                    <div class="secondary-action">
+
+                        <span>
+                            1
+                        </span>
+
+                        <span>
+                            Review complaint
+                        </span>
+
+                    </div>
+
+
+                    <div class="secondary-action">
+
+                        <span>
+                            2
+                        </span>
+
+                        <span>
+                            Review staff action
+                        </span>
+
+                    </div>
+
+
+                    <div class="secondary-action">
+
+                        <span>
+                            3
+                        </span>
+
+                        <span>
+                            Assign appropriate staff
+                        </span>
+
+                    </div>
+
+
+                    <div class="secondary-action">
+
+                        <span>
+                            4
+                        </span>
+
+                        <span>
+                            Record final action
+                        </span>
+
+                    </div>
+
+                </div>
+
+            </section>
+
+
+            <!-- INFORMATION -->
+
+            <section class="dashboard-card">
+
+                <div class="card-header">
+
+                    <div>
+
+                        <span class="section-label">
+                            Important
+                        </span>
+
+                        <h2>
+                            Escalation Records
+                        </h2>
+
+                    </div>
+
+                </div>
+
+                <p>
+                    Officer actions should accurately reflect the
+                    decision taken for each escalated complaint.
+                    Appropriate staff assignment and final action
+                    information become part of the complaint's
+                    processing record.
+                </p>
+
+            </section>
+
+        </aside>
+
+    </section>
+
+</section>
+
+{% endblock %}
