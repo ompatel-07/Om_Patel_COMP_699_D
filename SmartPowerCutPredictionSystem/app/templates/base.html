@@ -1,0 +1,631 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+
+    <meta charset="UTF-8">
+
+    <meta
+        name="viewport"
+        content="width=device-width, initial-scale=1.0"
+    >
+
+    <title>
+        {% block title %}
+            Smart Power Cut Prediction System
+        {% endblock %}
+    </title>
+
+    <meta
+        name="description"
+        content="Smart Power Cut Prediction System for electricity complaint management and power cut prediction."
+    >
+
+    <link
+        rel="stylesheet"
+        href="{{ url_for('static', filename='css/style.css') }}"
+    >
+
+    {% block extra_head %}{% endblock %}
+
+</head>
+
+
+<body>
+
+
+<!-- ============================================================
+     HEADER
+     ============================================================ -->
+
+<header class="site-header">
+
+    <div class="header-container">
+
+
+        <!-- ======================================================
+             BRAND
+             ====================================================== -->
+
+        <a
+            href="{{ url_for('auth.home') }}"
+            class="brand"
+            aria-label="Smart Power Cut Prediction System Home"
+        >
+
+            <span class="brand-icon">
+                ⚡
+            </span>
+
+            <span class="brand-text">
+
+                <strong>
+                    Smart Power Cut
+                </strong>
+
+                <small>
+                    Prediction System
+                </small>
+
+            </span>
+
+        </a>
+
+
+        <!-- ======================================================
+             MAIN NAVIGATION
+             ====================================================== -->
+
+        <nav
+            class="main-navigation"
+            aria-label="Main navigation"
+        >
+
+            <!-- ==================================================
+                 AUTHENTICATED USER NAVIGATION
+
+                 IMPORTANT:
+                 Authentication is handled through Flask session
+                 in auth.py.
+                 ================================================== -->
+
+            {% if session.get('user_id') %}
+
+
+                <!-- ==================================================
+                     RESIDENT NAVIGATION
+                     ================================================== -->
+
+                {% if session.get('role') == 'resident' %}
+
+                    <a
+                        href="{{ url_for('resident.dashboard') }}"
+                    >
+                        Dashboard
+                    </a>
+
+                    <a
+                        href="{{ url_for('resident.complaints') }}"
+                    >
+                        My Complaints
+                    </a>
+
+                    <a
+                        href="{{ url_for('resident.complaint_form') }}"
+                    >
+                        New Complaint
+                    </a>
+
+                    <a
+                        href="{{ url_for('resident.predictions') }}"
+                    >
+                        Predictions
+                    </a>
+
+                    <a
+                        href="{{ url_for('resident.notifications') }}"
+                    >
+                        Notifications
+                    </a>
+
+
+                <!-- ==================================================
+                     STAFF NAVIGATION
+                     ================================================== -->
+
+                {% elif session.get('role') == 'staff' %}
+
+                    <a
+                        href="{{ url_for('staff.dashboard') }}"
+                    >
+                        Dashboard
+                    </a>
+
+
+                <!-- ==================================================
+                     OFFICER NAVIGATION
+                     ================================================== -->
+
+                {% elif session.get('role') == 'officer' %}
+
+                    <a
+                        href="{{ url_for('officer.dashboard') }}"
+                    >
+                        Dashboard
+                    </a>
+
+                    <a
+                        href="{{ url_for('officer.escalated_complaints') }}"
+                    >
+                        Escalated Complaints
+                    </a>
+
+
+                <!-- ==================================================
+                     ADMIN NAVIGATION
+                     ================================================== -->
+
+                {% elif session.get('role') == 'admin' %}
+
+                    <a
+                        href="{{ url_for('admin.dashboard') }}"
+                    >
+                        Dashboard
+                    </a>
+
+                    <a
+                        href="{{ url_for('admin.users') }}"
+                    >
+                        Users
+                    </a>
+
+                    <a
+                        href="{{ url_for('admin.staff_accounts') }}"
+                    >
+                        Staff Accounts
+                    </a>
+
+                    <a
+                        href="{{ url_for('admin.reports') }}"
+                    >
+                        Reports
+                    </a>
+
+                    <a
+                        href="{{ url_for('admin.upload_dataset') }}"
+                    >
+                        Dataset
+                    </a>
+
+                {% endif %}
+
+
+            {% else %}
+
+
+                <!-- ==================================================
+                     PUBLIC NAVIGATION
+                     ================================================== -->
+
+                <a
+                    href="{{ url_for('auth.home') }}"
+                >
+                    Home
+                </a>
+
+                <a
+                    href="{{ url_for('auth.login') }}"
+                >
+                    Sign In
+                </a>
+
+                <a
+                    href="{{ url_for('auth.register') }}"
+                    class="nav-register"
+                >
+                    Create Account
+                </a>
+
+
+            {% endif %}
+
+        </nav>
+
+
+        <!-- ======================================================
+             LOGGED-IN ACCOUNT AREA
+             ====================================================== -->
+
+        {% if session.get('user_id') %}
+
+            <div class="header-account">
+
+
+                <!-- ==================================================
+                     USER INFORMATION
+                     ================================================== -->
+
+                <div class="account-info">
+
+                    <span class="account-name">
+                        {{ session.get('full_name') }}
+                    </span>
+
+                    <span class="account-role">
+                        {{ session.get('role', '')|replace('_', ' ')|title }}
+                    </span>
+
+                </div>
+
+
+                <!-- ==================================================
+                     ACCOUNT MENU
+                     ================================================== -->
+
+                <div class="account-menu">
+
+
+                    <!-- ==================================================
+                         RESIDENT ACCOUNT OPTIONS
+                         ================================================== -->
+
+                    {% if session.get('role') == 'resident' %}
+
+                        <a
+                            href="{{ url_for('resident.profile') }}"
+                        >
+                            Profile
+                        </a>
+
+                        <a
+                            href="{{ url_for('resident.change_password') }}"
+                        >
+                            Change Password
+                        </a>
+
+                    {% endif %}
+
+
+                    <!-- ==================================================
+                         SIGN OUT
+                         ================================================== -->
+
+                    <a
+                        href="{{ url_for('auth.logout') }}"
+                        class="logout-link"
+                        title="Sign out"
+                    >
+                        Sign Out
+                    </a>
+
+
+                </div>
+
+            </div>
+
+        {% endif %}
+
+
+    </div>
+
+</header>
+
+
+
+<!-- ============================================================
+     MAIN CONTENT
+     ============================================================ -->
+
+<main class="main-content">
+
+    <div class="page-container">
+
+
+        <!-- ======================================================
+             FLASH MESSAGES
+             ====================================================== -->
+
+        {% with messages = get_flashed_messages(
+            with_categories=true
+        ) %}
+
+            {% if messages %}
+
+                <section
+                    class="flash-messages"
+                    aria-label="System messages"
+                >
+
+                    {% for category, message in messages %}
+
+                        <div
+                            class="alert alert-{{ category }}"
+                            role="alert"
+                        >
+
+                            <span class="alert-icon">
+
+                                {% if category == 'success' %}
+
+                                    ✓
+
+                                {% elif category == 'danger'
+                                      or category == 'error' %}
+
+                                    !
+
+                                {% elif category == 'warning' %}
+
+                                    ⚠
+
+                                {% else %}
+
+                                    i
+
+                                {% endif %}
+
+                            </span>
+
+
+                            <span class="alert-message">
+                                {{ message }}
+                            </span>
+
+
+                        </div>
+
+                    {% endfor %}
+
+                </section>
+
+            {% endif %}
+
+        {% endwith %}
+
+
+
+        <!-- ======================================================
+             PAGE HEADER
+             ====================================================== -->
+
+        {% block page_header %}{% endblock %}
+
+
+
+        <!-- ======================================================
+             PAGE CONTENT
+             ====================================================== -->
+
+        {% block content %}{% endblock %}
+
+
+    </div>
+
+</main>
+
+
+
+<!-- ============================================================
+     FOOTER
+     ============================================================ -->
+
+<footer class="site-footer">
+
+    <div class="footer-container">
+
+
+        <!-- ======================================================
+             FOOTER BRAND
+             ====================================================== -->
+
+        <div class="footer-brand">
+
+            <div class="footer-title">
+
+                <span class="footer-icon">
+                    ⚡
+                </span>
+
+                Smart Power Cut Prediction System
+
+            </div>
+
+
+            <p>
+                Electricity complaint management and
+                power cut prediction platform.
+            </p>
+
+        </div>
+
+
+
+        <!-- ======================================================
+             FOOTER LINKS
+             ====================================================== -->
+
+        <div class="footer-links">
+
+
+            <!-- ==================================================
+                 LOGGED-IN FOOTER LINKS
+                 ================================================== -->
+
+            {% if session.get('user_id') %}
+
+
+                <!-- ==================================================
+                     RESIDENT FOOTER LINKS
+                     ================================================== -->
+
+                {% if session.get('role') == 'resident' %}
+
+                    <a
+                        href="{{ url_for('resident.dashboard') }}"
+                    >
+                        Dashboard
+                    </a>
+
+                    <a
+                        href="{{ url_for('resident.complaints') }}"
+                    >
+                        Complaints
+                    </a>
+
+                    <a
+                        href="{{ url_for('resident.predictions') }}"
+                    >
+                        Predictions
+                    </a>
+
+                    <a
+                        href="{{ url_for('resident.notifications') }}"
+                    >
+                        Notifications
+                    </a>
+
+                    <a
+                        href="{{ url_for('resident.profile') }}"
+                    >
+                        Profile
+                    </a>
+
+
+                <!-- ==================================================
+                     STAFF FOOTER LINKS
+                     ================================================== -->
+
+                {% elif session.get('role') == 'staff' %}
+
+                    <a
+                        href="{{ url_for('staff.dashboard') }}"
+                    >
+                        Dashboard
+                    </a>
+
+
+                <!-- ==================================================
+                     OFFICER FOOTER LINKS
+                     ================================================== -->
+
+                {% elif session.get('role') == 'officer' %}
+
+                    <a
+                        href="{{ url_for('officer.dashboard') }}"
+                    >
+                        Dashboard
+                    </a>
+
+                    <a
+                        href="{{ url_for('officer.escalated_complaints') }}"
+                    >
+                        Escalated Complaints
+                    </a>
+
+
+                <!-- ==================================================
+                     ADMIN FOOTER LINKS
+                     ================================================== -->
+
+                {% elif session.get('role') == 'admin' %}
+
+                    <a
+                        href="{{ url_for('admin.dashboard') }}"
+                    >
+                        Dashboard
+                    </a>
+
+                    <a
+                        href="{{ url_for('admin.users') }}"
+                    >
+                        Users
+                    </a>
+
+                    <a
+                        href="{{ url_for('admin.reports') }}"
+                    >
+                        Reports
+                    </a>
+
+                {% endif %}
+
+
+                <!-- ==================================================
+                     FOOTER SIGN OUT
+                     ================================================== -->
+
+                <a
+                    href="{{ url_for('auth.logout') }}"
+                    class="logout-link"
+                    title="Sign out"
+                >
+                    Sign Out
+                </a>
+
+
+            {% else %}
+
+
+                <!-- ==================================================
+                     PUBLIC FOOTER LINKS
+                     ================================================== -->
+
+                <a
+                    href="{{ url_for('auth.home') }}"
+                >
+                    Home
+                </a>
+
+                <a
+                    href="{{ url_for('auth.login') }}"
+                >
+                    Sign In
+                </a>
+
+                <a
+                    href="{{ url_for('auth.register') }}"
+                >
+                    Create Account
+                </a>
+
+
+            {% endif %}
+
+
+        </div>
+
+
+
+        <!-- ======================================================
+             FOOTER BOTTOM
+             ====================================================== -->
+
+        <div class="footer-bottom">
+
+            <span>
+                © 2026 OMTech
+            </span>
+
+            <span>
+                Smart Power Cut Prediction System
+            </span>
+
+        </div>
+
+
+    </div>
+
+</footer>
+
+
+
+<!-- ============================================================
+     EXTRA SCRIPTS
+     ============================================================ -->
+
+{% block extra_scripts %}{% endblock %}
+
+
+</body>
+
+</html>
